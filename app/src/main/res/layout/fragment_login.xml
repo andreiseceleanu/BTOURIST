@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<RelativeLayout
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LoginActivity" android:background="@drawable/login_gradient"
+    >
+
+    <ImageView
+        android:id="@+id/logoImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="TODO"
+        app:srcCompat="@drawable/btourist_logo" />
+
+    <EditText
+        android:id="@+id/loginNameText"
+        style="@android:style/Widget.Holo.EditText"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/logoImage"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="72dp"
+        android:background="@drawable/edit_round"
+        android:drawableLeft="@drawable/ic_action_user"
+        android:ems="10"
+        android:fontFamily="@font/trench100free"
+        android:hint="Username"
+        android:inputType="textPersonName"
+        android:textColor="@color/btouristPurple"
+        android:textSize="18dp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/passwordText"
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/loginNameText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="48dp"
+        android:autofillHints=""
+        android:background="@drawable/edit_round"
+        android:drawableLeft="@drawable/ic_action_lock"
+        android:ems="10"
+        android:fontFamily="@font/trench100free"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:textColor="@color/btouristPurple"
+        android:textColorHint="@color/btouristPurple"
+        android:textSize="18dp" />
+
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_below="@id/passwordText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:background="@drawable/button_round"
+        android:fontFamily="@font/trench100free"
+        android:text="@string/login"
+        android:textColor="@color/btouristPurple"
+        android:textColorHint="@color/btouristPurple"
+        android:textSize="15dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/registerText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/loginButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/trench100free"
+        android:text="@string/register_now"
+        android:textColor="@color/btouristPurple"
+        android:textSize="20dp"
+        android:textStyle="bold" />
+</RelativeLayout>
+</layout>
