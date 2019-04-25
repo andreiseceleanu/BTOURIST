@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "479244274517",
+    "firebase_url": "https://btourist-72d8f.firebaseio.com",
+    "project_id": "btourist-72d8f",
+    "storage_bucket": "btourist-72d8f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:479244274517:android:32a61d160034458c",
+        "android_client_info": {
+          "package_name": "com.modern.btourist"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "479244274517-2ppvu8ee09t7gq0qao0mretvc5ahvq9t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.modern.btourist",
+            "certificate_hash": "88368b0892c226d8d9de3b5a6c224318147aa60f"
+          }
+        },
+        {
+          "client_id": "479244274517-j04thjnkhu8jitd5j5i6uj8k9vfn9m0g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsorv4NdZ-droU-hHAYtZPJzUNOJWM-Dk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "479244274517-j04thjnkhu8jitd5j5i6uj8k9vfn9m0g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

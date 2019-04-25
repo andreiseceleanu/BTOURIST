@@ -8,6 +8,8 @@ apply plugin: "androidx.navigation.safeargs.kotlin"
 
 apply plugin: 'kotlin-kapt'
 
+apply plugin: 'com.google.gms.google-services'
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -69,6 +71,8 @@ dependencies {
 
     //DataBinding
     kapt 'com.android.databinding:compiler:3.0.1'
+
+    //Firebase
+    implementation 'com.google.firebase:firebase-core:16.0.1'
+    implementation 'com.google.firebase:firebase-auth:16.0.1'
 }
-
-

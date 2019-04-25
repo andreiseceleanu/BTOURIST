@@ -19,10 +19,19 @@
         android:id="@+id/registerFragment"
         android:name="com.modern.btourist.RegisterFragment"
         android:label="fragment_register"
-        tools:layout="@layout/fragment_register" />
+        tools:layout="@layout/fragment_register" >
+        <action
+            android:id="@+id/action_registerFragment_to_interestsFragment"
+            app:destination="@id/interestsFragment" />
+    </fragment>
     <activity
         android:id="@+id/mainActivity2"
         android:name="com.modern.btourist.MainActivity"
         android:label="activity_main"
         tools:layout="@layout/activity_main" />
+    <fragment
+        android:id="@+id/interestsFragment"
+        android:name="com.modern.btourist.InterestsFragment"
+        android:label="fragment_interests"
+        tools:layout="@layout/fragment_interests" />
 </navigation>
