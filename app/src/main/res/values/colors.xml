@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#382857</color>
-    <color name="colorPrimaryDark">#202020</color>
+    <color name="colorPrimaryDark">#382857</color>
     <color name="navigationBarColor">#202020</color>
     <color name="colorAccent">#D81B60</color>
     <color name="btouristPurple">#382857</color>

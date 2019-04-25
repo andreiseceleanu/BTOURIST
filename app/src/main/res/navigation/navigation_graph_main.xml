@@ -1,3 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/navigation_graph_main" />
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_graph_main"
+    app:startDestination="@id/mapFragment">
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.modern.btourist.MapFragment"
+        android:label="fragment_map"
+        tools:layout="@layout/fragment_map" >
+        <action
+            android:id="@+id/action_mapFragment_to_loginFragment2"
+            app:destination="@id/loginFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginFragment2"
+        android:name="com.modern.btourist.LoginFragment"
+        android:label="LoginFragment" />
+</navigation>

@@ -73,6 +73,9 @@ dependencies {
     kapt 'com.android.databinding:compiler:3.0.1'
 
     //Firebase
-    implementation 'com.google.firebase:firebase-core:16.0.1'
-    implementation 'com.google.firebase:firebase-auth:16.0.1'
+    implementation 'com.google.firebase:firebase-core:16.0.8'
+    implementation 'com.google.firebase:firebase-auth:16.2.1'
+    //implementation 'com.google.firebase:firebase-auth:16.0.6'
+    implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
+    //compile 'com.google.firebase:firebase-auth:16.0.5'
 }
