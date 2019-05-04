@@ -1,4 +1,4 @@
-package com.modern.btourist
+package com.modern.btourist.LoginRegister
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

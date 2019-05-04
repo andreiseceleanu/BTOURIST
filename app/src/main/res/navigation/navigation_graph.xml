@@ -6,7 +6,7 @@
     app:startDestination="@id/loginFragment">
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.modern.btourist.LoginFragment"
+        android:name="com.modern.btourist.LoginRegister.LoginFragment"
         android:label="LoginFragment" >
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
@@ -19,7 +19,7 @@
     </fragment>
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.modern.btourist.RegisterFragment"
+        android:name="com.modern.btourist.LoginRegister.RegisterFragment"
         android:label="fragment_register"
         tools:layout="@layout/fragment_register" >
         <action
@@ -31,12 +31,12 @@
     </fragment>
     <activity
         android:id="@+id/mainActivity2"
-        android:name="com.modern.btourist.MainActivity"
+        android:name="com.modern.btourist.Map.MainActivity"
         android:label="activity_main"
         tools:layout="@layout/activity_main" />
     <fragment
         android:id="@+id/interestsFragment"
-        android:name="com.modern.btourist.InterestsFragment"
+        android:name="com.modern.btourist.LoginRegister.InterestsFragment"
         android:label="fragment_interests"
         tools:layout="@layout/fragment_interests" />
 </navigation>

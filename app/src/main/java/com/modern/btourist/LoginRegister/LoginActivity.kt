@@ -1,9 +1,11 @@
-package com.modern.btourist
+package com.modern.btourist.LoginRegister
 
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.modern.btourist.Map.MainActivity
+import com.modern.btourist.R
 
 class LoginActivity : AppCompatActivity() {
     val PREFS_FILENAME = "com.modern.btourist.prefs"

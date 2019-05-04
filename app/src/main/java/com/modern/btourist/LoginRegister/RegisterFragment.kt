@@ -1,4 +1,4 @@
-package com.modern.btourist
+package com.modern.btourist.LoginRegister
 
 
 import android.os.Bundle
@@ -13,6 +13,8 @@ import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.modern.btourist.R
+import com.modern.btourist.LoginRegister.RegisterFragmentDirections
 import com.modern.btourist.databinding.FragmentRegisterBinding
 import kotlinx.android.synthetic.main.fragment_register.*
 
@@ -26,7 +28,8 @@ class RegisterFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val binding = DataBindingUtil.inflate<FragmentRegisterBinding>(inflater,R.layout.fragment_register,container,false)
+        val binding = DataBindingUtil.inflate<FragmentRegisterBinding>(inflater,
+            R.layout.fragment_register,container,false)
 
         val nextButton = binding.registerNextButton1
         mAuth = FirebaseAuth.getInstance()

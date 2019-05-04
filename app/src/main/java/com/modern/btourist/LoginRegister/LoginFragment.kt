@@ -1,4 +1,4 @@
-package com.modern.btourist
+package com.modern.btourist.LoginRegister
 
 
 import android.content.SharedPreferences
@@ -15,6 +15,8 @@ import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.modern.btourist.LoginRegister.LoginFragmentDirections
+import com.modern.btourist.R
 import com.modern.btourist.databinding.FragmentLoginBinding
 import kotlinx.android.synthetic.main.fragment_login.*
 
@@ -36,12 +38,14 @@ class LoginFragment : Fragment() {
         //Request Login View Model
         viewModel = ViewModelProviders.of(this).get(LoginViewModel::class.java)
         //DataBind layout to binding val
-        val binding = DataBindingUtil.inflate<FragmentLoginBinding>(inflater, R.layout.fragment_login, container, false)
+        val binding = DataBindingUtil.inflate<FragmentLoginBinding>(inflater,
+            R.layout.fragment_login, container, false)
         val registerText = binding.registerText
         val loginButton = binding.loginButton
 
         //Navigate to register screen using Navigation Component
-        registerText.setOnClickListener(View.OnClickListener { view!!.findNavController().navigate(LoginFragmentDirections.actionLoginFragmentToRegisterFragment()) })
+        registerText.setOnClickListener(View.OnClickListener { view!!.findNavController().navigate(
+            LoginFragmentDirections.actionLoginFragmentToRegisterFragment()) })
         //Click on login button
         loginButton.setOnClickListener({userLogin() })
 

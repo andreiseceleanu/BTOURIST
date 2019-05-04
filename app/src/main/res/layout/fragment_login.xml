@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/login_gradient"
-        tools:context=".LoginActivity">
+        tools:context=".LoginRegister.LoginActivity">
 
         <ImageView
             android:id="@+id/logoImage"
@@ -127,5 +127,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/logoImage"
             app:layout_constraintVertical_bias="0.972" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

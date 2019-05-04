@@ -2,6 +2,7 @@
     <string name="app_name">BTOURIST</string>
     <string name="register_now">Register Now</string>
     <string name="login">Login</string>
+    <string name="maps_api_key">AIzaSyDBGLpTVTeD_KhGuSf-pekXB12OdDFa6iU</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
