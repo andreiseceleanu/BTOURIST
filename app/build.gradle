@@ -58,6 +58,7 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
+
     //Paging
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"
 
@@ -75,6 +76,8 @@ dependencies {
     //Firebase
     implementation 'com.google.firebase:firebase-core:16.0.8'
     implementation 'com.google.firebase:firebase-auth:16.2.1'
+    implementation 'com.google.firebase:firebase-firestore:18.2.0'
+    implementation 'com.google.firebase:firebase-storage:16.1.0'
 
     //Maps Location
     implementation 'com.google.android.gms:play-services-location:16.0.0'

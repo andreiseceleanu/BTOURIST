@@ -26,7 +26,6 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.snackbar.Snackbar
 import com.modern.btourist.LoginRegister.LoginActivity
 import com.modern.btourist.R
 import com.modern.btourist.databinding.ActivityMainBinding
@@ -37,8 +36,6 @@ class MainActivity : AppCompatActivity() {
     val ERROR_DIALOG_REQUEST: Int = 1001
     val PERMISSIONS_REQUEST_ENABLE_GPS: Int = 1002
     val PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: Int = 1003
-    //private lateinit var viewModel: LoginViewModel
-    //private lateinit var mAuth: FirebaseAuth
     private lateinit var binding: ActivityMainBinding
     private var mLocationPermissionGranted: Boolean = false
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
@@ -80,10 +77,11 @@ class MainActivity : AppCompatActivity() {
         }
          mFusedLocationClient.getLastLocation().addOnCompleteListener(OnCompleteListener<Location>{
              if(it.isSuccessful) {
-                 var location: Location = it.result as Location
-                 var geoPoint: LatLng = LatLng(location.latitude, location.longitude)
+                 var location: Location? = it.result as Location?
+                 if(location!=null){
+                 var geoPoint: LatLng = LatLng(location!!.latitude, location!!.longitude)
                  Log.d("LOCATION", "onComplete: latitude " + geoPoint.latitude)
-                 Log.d("LOCATION", "onComplete: longitude " + geoPoint.longitude)
+                 Log.d("LOCATION", "onComplete: longitude " + geoPoint.longitude)}
              }
 
 
@@ -134,9 +132,7 @@ class MainActivity : AppCompatActivity() {
         ) {
             mLocationPermissionGranted = true
             getLastKnownLocation()
-            //binding = DataBindingUtil.setContentView(this, com.modern.btourist.R.layout.activity_main)
 
-            //getMap()
         } else {
             ActivityCompat.requestPermissions(
                 this,
@@ -188,9 +184,8 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         if(checkMapServices()){
             if(mLocationPermissionGranted)
-             //binding = DataBindingUtil.setContentView(this, com.modern.btourist.R.layout.activity_main)
                 getLastKnownLocation()
-                //getMap()
+
             else {getLocationPermission()
                 //Snackbar.make( getWindow().getDecorView().getRootView() , "Location Permission Denied: App Malfunction",Snackbar.LENGTH_LONG).show()
             }
@@ -203,12 +198,12 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             PERMISSIONS_REQUEST_ENABLE_GPS -> {
                 if (mLocationPermissionGranted) {
-                    //binding = DataBindingUtil.setContentView(this, com.modern.btourist.R.layout.activity_main)
+
                     getLastKnownLocation()
-                    //getMap()
+
                 } else {
                     getLocationPermission()
-                    Snackbar.make( getWindow().getDecorView().getRootView() , "Location Permission Denied: App Malfunction",Snackbar.LENGTH_LONG).show()
+                    //Snackbar.make( getWindow().getDecorView().getRootView() , "Location Permission Denied: App Malfunction",Snackbar.LENGTH_LONG).show()
                 }
             }
         }

@@ -13,8 +13,8 @@ import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.modern.btourist.Database.FirestoreUtil
 import com.modern.btourist.R
-import com.modern.btourist.LoginRegister.RegisterFragmentDirections
 import com.modern.btourist.databinding.FragmentRegisterBinding
 import kotlinx.android.synthetic.main.fragment_register.*
 
@@ -41,8 +41,14 @@ class RegisterFragment : Fragment() {
 
     private fun registerUser(){
 
+        var firstName: String = firstNameText.getText().toString().trim()
+        var lastName: String = lastNameText.getText().toString().trim()
         var email: String = emailText.getText().toString().trim()
         var password: String = passRegText.getText().toString().trim()
+        var phone: String = phoneText.getText().toString().trim()
+        var phoneInt: Int = Integer.parseInt(phone)
+
+
 
         if (email.isEmpty()) {
             emailText.error = "Email is required"
@@ -71,8 +77,11 @@ class RegisterFragment : Fragment() {
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task: Task<AuthResult> ->
             if (task.isSuccessful) {
                 //Registration OK
-                val firebaseUser = mAuth.currentUser!!
-                view!!.findNavController().navigate(RegisterFragmentDirections.actionRegisterFragmentToLoginFragment())
+
+                FirestoreUtil.initCurrentUserIfFirstTime { val firebaseUser = mAuth.currentUser!!
+                    view!!.findNavController().navigate(RegisterFragmentDirections.actionRegisterFragmentToInterestsFragment(email,firstName,lastName,phoneInt))
+                }
+
             } else {
                 //Registration error
                 Snackbar.make(view!!,"Registration Failed", Snackbar.LENGTH_LONG).show()
