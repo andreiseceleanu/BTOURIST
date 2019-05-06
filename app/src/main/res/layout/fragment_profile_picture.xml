@@ -78,19 +78,28 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.226"
-            tools:srcCompat="@tools:sample/avatars" />
+            app:srcCompat="@drawable/people" />
 
         <EditText
             android:id="@+id/ageEditText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
+            android:background="@drawable/edit_round"
+            android:drawableLeft="@drawable/ic_action_age"
             android:ems="10"
+            android:fontFamily="@font/trench100free"
             android:hint="Age"
             android:inputType="number"
+            android:textColor="@color/btouristPurple"
+            android:textColorHighlight="@color/orangeAccent"
+            android:textColorHint="@color/btouristPurple"
+            android:textColorLink="@color/orangeAccent"
+            android:textCursorDrawable="@null"
+            android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.472"
@@ -116,24 +125,40 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Male" />
+                android:buttonTint="@color/orangeAccent"
+                android:fontFamily="@font/trench100free"
+                android:text="Male"
+                android:textColor="@color/btouristPurple"
+                android:textColorHighlight="@color/orangeAccent"
+                android:textColorLink="@color/btouristPurple"
+                android:textCursorDrawable="@null"
+                android:textStyle="bold" />
 
             <RadioButton
                 android:id="@+id/radioFemale"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Female" />
+                android:buttonTint="@color/orangeAccent"
+                android:fontFamily="@font/trench100free"
+                android:text="Female"
+                android:textColor="@color/btouristPurple"
+                android:textColorHighlight="@color/orangeAccent"
+                android:textColorLink="@color/btouristPurple"
+                android:textCursorDrawable="@null"
+                android:textStyle="bold" />
         </RadioGroup>
 
         <TextView
             android:id="@+id/sexText"
-            android:layout_width="35dp"
-            android:layout_height="27dp"
+            android:layout_width="63dp"
+            android:layout_height="28dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:fontFamily="@font/trench100free"
             android:text="Sex"
             android:textColor="@color/whiteAccent"
@@ -147,20 +172,23 @@
 
         <Button
             android:id="@+id/finishUserButton"
-            android:layout_width="wrap_content"
+            android:layout_width="136dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:background="@drawable/button_round"
+            android:fontFamily="@font/trench100free"
             android:text="Finish"
+            android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.876"
+            app:layout_constraintHorizontal_bias="0.969"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.973" />
+            app:layout_constraintVertical_bias="0.961" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

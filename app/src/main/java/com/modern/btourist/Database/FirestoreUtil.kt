@@ -23,7 +23,7 @@ object FirestoreUtil {
     fun updateCurrentUser(firstName: String ="",
                           lastName: String ="",
                           email: String ="",
-                          phone: Int =0,
+                          phone: Long =0L,
                           interest1: String ="",
                           interest2: String ="",
                           interest3: String ="",
@@ -39,7 +39,7 @@ object FirestoreUtil {
         if(firstName.isNotBlank()) userFieldMap["firstName"]=firstName
         if(lastName.isNotBlank()) userFieldMap["lastName"]=lastName
         if(email.isNotBlank()) userFieldMap["email"]=email
-        if(phone!=0) userFieldMap["phone"]=phone
+        if(phone!=0L) userFieldMap["phone"]=phone
         if(interest1.isNotBlank()) userFieldMap["interest1"]=interest1
         if(interest2.isNotBlank()) userFieldMap["interest2"]=interest2
         if(interest3.isNotBlank()) userFieldMap["interest3"]=interest3

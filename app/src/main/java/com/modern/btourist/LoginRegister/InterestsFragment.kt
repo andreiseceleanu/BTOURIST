@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.modern.btourist.R
 import com.modern.btourist.databinding.FragmentInterestsBinding
+import kotlinx.android.synthetic.main.fragment_interests.*
 
 class InterestsFragment : Fragment() {
 
@@ -37,23 +38,28 @@ class InterestsFragment : Fragment() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
         spinner1.setAdapter(adapter)
-        var interest1: String = spinner1.selectedItem.toString().trim()
-
         spinner2.setAdapter(adapter)
-        var interest2: String = spinner2.selectedItem.toString().trim()
-
         spinner3.setAdapter(adapter)
-        var interest3: String = spinner1.selectedItem.toString().trim()
 
-        var languageText1: String = binding.firstLanguageText.getText().toString().trim()
-        var languageText2: String = binding.secondLanguageText.getText().toString().trim()
+
+        var languageText1 = binding.firstLanguageText
+        var languageText2 = binding.secondLanguageText
+
 
         var args = InterestsFragmentArgs.fromBundle(arguments!!)
 
+
         var nextButton = binding.toProfilePictureButton
         nextButton.setOnClickListener{
+            if(validateLanguage1()&&validateLanguage2()){
+                var interest1: String = spinner1.selectedItem.toString().trim()
+                var interest2: String = spinner2.selectedItem.toString().trim()
+                var interest3: String = spinner1.selectedItem.toString().trim()
+                var languageString1 = languageText1.text.toString().trim()
+                var languageString2 = languageText2.text.toString().trim()
             view!!.findNavController().navigate(InterestsFragmentDirections.actionInterestsFragmentToProfilePictureFragment(args.email,args.firstName,args.lastName,args.phone,interest1,
-                interest2,interest3,languageText1,languageText2))
+                interest2,interest3,languageString1,languageString2))
+            }
         }
 
 
@@ -61,5 +67,30 @@ class InterestsFragment : Fragment() {
         return binding.root
     }
 
+    fun validateLanguage1(): Boolean{
+        var languageString1: String = firstLanguageText.text.toString().trim()
+
+        if (languageString1.isEmpty()) {
+            firstLanguageText.requestFocus()
+            firstLanguageText.error = "Enter your first language"
+            return false
+        }else {
+            firstLanguageText.error = null
+            return true
+        }
+    }
+
+    fun validateLanguage2(): Boolean{
+        var languageString2: String = secondLanguageText.text.toString().trim()
+
+        if (languageString2.isEmpty()) {
+            secondLanguageText.requestFocus()
+            secondLanguageText.error = "Enter your second language"
+            return false
+        }else {
+            secondLanguageText.error = null
+            return true
+        }
+    }
 
 }

@@ -14,14 +14,21 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.modern.btourist.Database.FirestoreUtil
-import com.modern.btourist.R
 import com.modern.btourist.databinding.FragmentRegisterBinding
 import kotlinx.android.synthetic.main.fragment_register.*
+
+
+
 
 
 class RegisterFragment : Fragment() {
 
     private lateinit var mAuth: FirebaseAuth
+    private var validateFirstName: Boolean = true
+    private var validateLastName: Boolean = true
+    private var validateEmail: Boolean = true
+    private var validatePass: Boolean = true
+    private var validatePhone: Boolean = true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,7 +36,7 @@ class RegisterFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val binding = DataBindingUtil.inflate<FragmentRegisterBinding>(inflater,
-            R.layout.fragment_register,container,false)
+            com.modern.btourist.R.layout.fragment_register,container,false)
 
         val nextButton = binding.registerNextButton1
         mAuth = FirebaseAuth.getInstance()
@@ -39,6 +46,89 @@ class RegisterFragment : Fragment() {
         return binding.root
     }
 
+    private fun validateFirstName(): Boolean{
+        var firstName: String = firstNameText.getText().toString().trim()
+
+        if (firstName.isEmpty()) {
+            firstNameText.requestFocus()
+            firstNameText.error = "Enter First Name"
+            return false
+        }else {
+            firstNameText.error = null
+            return true
+        }
+
+    }
+
+    private fun validateLastName(): Boolean{
+        var lastName: String = lastNameText.getText().toString().trim()
+
+        if (lastName.isEmpty()) {
+            lastNameText.requestFocus()
+            lastNameText.error = "Enter Last Name"
+            return false
+        }else {
+            lastNameText.error = null
+            return true
+        }
+    }
+
+    private fun validateEmail(): Boolean{
+        var email: String = emailText.getText().toString().trim()
+
+        if (email.isEmpty()) {
+            emailText.requestFocus()
+            emailText.error = "Email is required"
+            return false
+        } else if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                emailText.requestFocus()
+                emailText.error = "Please enter a valid email"
+                return false
+        }else {
+            emailText.error = null
+            return true
+        }
+    }
+
+    private fun validatePassword(): Boolean{
+        var password: String = passRegText.getText().toString().trim()
+
+        if (password.isEmpty()) {
+            passRegText.requestFocus()
+            passRegText.error="Password cannot be empty!"
+            return false
+        }else if (password.length < 8)
+        {
+            passRegText.requestFocus()
+            passRegText.setError("Minimum lenght of the password is 8")
+            return false
+        }else {
+            passRegText.error = null
+            return true
+        }
+    }
+
+    fun isNumeric(s: String?): Boolean {
+        return s != null && s.matches("[-+]?\\d*\\.?\\d+".toRegex())
+    }
+
+    private fun validatePhone(): Boolean{
+        var phone: String = phoneText.getText().toString().trim()
+
+        if (phone.isEmpty()) {
+            phoneText.requestFocus()
+            phoneText.error = "Enter Phone Number"
+            return false
+        }else if(!isNumeric(phone)){
+            phoneText.requestFocus()
+            phoneText.error = "Phone must be numeric"
+            return false
+        }else {
+            phoneText.error = null
+            return true
+        }
+    }
+
     private fun registerUser(){
 
         var firstName: String = firstNameText.getText().toString().trim()
@@ -46,45 +136,33 @@ class RegisterFragment : Fragment() {
         var email: String = emailText.getText().toString().trim()
         var password: String = passRegText.getText().toString().trim()
         var phone: String = phoneText.getText().toString().trim()
-        var phoneInt: Int = Integer.parseInt(phone)
 
 
+        if(validatePhone() && validatePassword() && validateFirstName() && validateLastName() && validateEmail()) {
+            var updateBar = progressBar
+            updateBar.visibility = View.VISIBLE
+            var phoneInt: Long = phone.toLong()
+            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task: Task<AuthResult> ->
+                if (task.isSuccessful) {
+                    //Registration OK
 
-        if (email.isEmpty()) {
-            emailText.error = "Email is required"
-            emailText.requestFocus()
-            return
-        }
+                    FirestoreUtil.initCurrentUserIfFirstTime {
+                        val firebaseUser = mAuth.currentUser!!
+                        view!!.findNavController().navigate(
+                            RegisterFragmentDirections.actionRegisterFragmentToInterestsFragment(
+                                email,
+                                firstName,
+                                lastName,
+                                phoneInt
+                            )
+                        )
+                    }
 
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailText.error = "Please enter a valid email"
-            emailText.requestFocus()
-            return
-        }
-
-        if (password.isEmpty()) {
-            passRegText.error="Password cannot be empty!"
-            passRegText.requestFocus()
-            return
-        }
-
-        if (password.length < 8) {
-            passRegText.setError("Minimum lenght of the password is 8")
-            passRegText.requestFocus()
-            return
-        }
-
-        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task: Task<AuthResult> ->
-            if (task.isSuccessful) {
-                //Registration OK
-
-                FirestoreUtil.initCurrentUserIfFirstTime { val firebaseUser = mAuth.currentUser!!
-                    view!!.findNavController().navigate(RegisterFragmentDirections.actionRegisterFragmentToInterestsFragment(email,firstName,lastName,phoneInt))
+                } else {
+                    //Registration error
+                    Snackbar.make(view!!, "Registration Failed", Snackbar.LENGTH_LONG).show()
                 }
 
-            } else {
-                //Registration error
-                Snackbar.make(view!!,"Registration Failed", Snackbar.LENGTH_LONG).show()
             }
         }
 
