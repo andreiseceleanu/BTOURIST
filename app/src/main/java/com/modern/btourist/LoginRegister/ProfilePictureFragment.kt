@@ -71,8 +71,8 @@ class ProfilePictureFragment : Fragment() {
                 if (::selectedImageBytes.isInitialized)
                     StorageUtil.uploadProfilePicture(selectedImageBytes) { imagePath ->
                         FirestoreUtil.updateCurrentUser(
-                            args.email,
                             args.lastName,
+                            args.email,
                             args.firstName,
                             args.phone,
                             args.interest1,
@@ -97,8 +97,8 @@ class ProfilePictureFragment : Fragment() {
 
                     StorageUtil.uploadProfilePicture(selectedImageBytes) { imagePath ->
                         FirestoreUtil.updateCurrentUser(
-                            args.email,
                             args.lastName,
+                            args.email,
                             args.firstName,
                             args.phone,
                             args.interest1,

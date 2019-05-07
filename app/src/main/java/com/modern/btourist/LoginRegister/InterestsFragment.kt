@@ -54,7 +54,7 @@ class InterestsFragment : Fragment() {
             if(validateLanguage1()&&validateLanguage2()){
                 var interest1: String = spinner1.selectedItem.toString().trim()
                 var interest2: String = spinner2.selectedItem.toString().trim()
-                var interest3: String = spinner1.selectedItem.toString().trim()
+                var interest3: String = spinner3.selectedItem.toString().trim()
                 var languageString1 = languageText1.text.toString().trim()
                 var languageString2 = languageText2.text.toString().trim()
             view!!.findNavController().navigate(InterestsFragmentDirections.actionInterestsFragmentToProfilePictureFragment(args.email,args.firstName,args.lastName,args.phone,interest1,
