@@ -5,9 +5,10 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 
 object FirestoreUtil {
+
     private val firebaseFirestore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
     private val currentUserDocRef: DocumentReference
-    get() = firebaseFirestore.document("users/${FirebaseAuth.getInstance().uid
+    get() = firebaseFirestore.document("users/${FirebaseAuth.getInstance().currentUser?.uid
         ?: throw NullPointerException("UID is null.")} ")
 
     fun initCurrentUserIfFirstTime(onComplete:  () -> Unit){
@@ -57,6 +58,6 @@ object FirestoreUtil {
     fun getCurrentUser(onComplete: (User?) -> Unit){
         currentUserDocRef.get().addOnSuccessListener { onComplete(it.toObject(User::class.java))
         }
-
     }
+
 }

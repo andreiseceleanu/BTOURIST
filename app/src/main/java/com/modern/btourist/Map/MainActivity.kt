@@ -26,6 +26,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.modern.btourist.Database.FirestoreUtil
 import com.modern.btourist.LoginRegister.LoginActivity
 import com.modern.btourist.R
 import com.modern.btourist.databinding.ActivityMainBinding
@@ -69,8 +70,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
-
     private fun getLastKnownLocation(){
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
             return
@@ -79,9 +78,13 @@ class MainActivity : AppCompatActivity() {
              if(it.isSuccessful) {
                  var location: Location? = it.result as Location?
                  if(location!=null){
-                 var geoPoint: LatLng = LatLng(location!!.latitude, location!!.longitude)
-                 Log.d("LOCATION", "onComplete: latitude " + geoPoint.latitude)
-                 Log.d("LOCATION", "onComplete: longitude " + geoPoint.longitude)}
+                 var latLng: LatLng = LatLng(location!!.latitude, location!!.longitude)
+                 Log.d("LOCATION", "getLastKnownLocation: latitude " + latLng.latitude)
+                 Log.d("LOCATION", "getLastKnownLocation: longitude " + latLng.longitude)
+
+                     FirestoreUtil.updateCurrentUser("","","",0L,"","","",0,"","","",null,
+                         latLng.latitude,latLng.longitude)
+                 }
              }
 
 
@@ -132,6 +135,7 @@ class MainActivity : AppCompatActivity() {
         ) {
             mLocationPermissionGranted = true
             getLastKnownLocation()
+
 
         } else {
             ActivityCompat.requestPermissions(
