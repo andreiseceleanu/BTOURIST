@@ -118,7 +118,7 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                         myImage = BitmapFactory.decodeFile(localFile.absolutePath)
 
                         //resize marker icon
-                        var resized: Bitmap = Bitmap.createScaledBitmap(myImage, 256, 256, true)
+                        var resized: Bitmap = Bitmap.createScaledBitmap(myImage, 128, 128, true)
 
                         // Create a rounded corners bitmap
                         myImage = getRoundedBitmap(resized, 150F)
@@ -137,6 +137,7 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                                     .snippet("Snippet Test")
                                     .icon(BitmapDescriptorFactory.fromBitmap(myImage))
                                     .zIndex(1F)
+                                    .flat(true)
                             )
                         }
                         else {
@@ -150,6 +151,7 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                                     .title(user.firstName)
                                     .snippet("Snippet Test")
                                     .icon(BitmapDescriptorFactory.fromBitmap(myImage))
+                                    .flat(true)
                             )
                         }
                     }

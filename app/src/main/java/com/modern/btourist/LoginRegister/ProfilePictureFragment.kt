@@ -12,11 +12,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
+import com.google.android.gms.tasks.Task
+import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.FirebaseAuth
 import com.modern.btourist.Database.FirestoreUtil
 import com.modern.btourist.Database.StorageUtil
 import com.modern.btourist.R
@@ -27,6 +32,7 @@ import java.io.ByteArrayOutputStream
 
 class ProfilePictureFragment : Fragment() {
 
+    private lateinit var mAuth: FirebaseAuth
     private val RC_SELECT_IMAGE = 2
     private lateinit var selectedImageBytes: ByteArray
     private var pictureJustChanged = false
@@ -44,6 +50,7 @@ class ProfilePictureFragment : Fragment() {
         imageView = binding.profilePictureView
         var args = ProfilePictureFragmentArgs.fromBundle(arguments!!)
 
+
         binding.profilePictureView.setOnClickListener{
                 val intent = Intent().apply{
                     type = "image/*"
@@ -54,69 +61,89 @@ class ProfilePictureFragment : Fragment() {
         }
 
 
-
         binding.finishUserButton.setOnClickListener {
             var ageText = binding.ageEditText
             var ageString: String = ageText.getText().toString().trim()
+            var progressBar: ProgressBar =binding.progressBar
+            progressBar.visibility = View.VISIBLE
 
 
 
             if (validateAge() && validateSex()) {
 
-                var radioGroup: RadioGroup = binding.radioGroup
-                var selectedId: Int = radioGroup.checkedRadioButtonId
-                var radioButton: RadioButton = view!!.findViewById(selectedId)
-                var sex: String = radioButton.getText().toString().trim()
-                var age: Int = Integer.parseInt(ageString)
-                if (::selectedImageBytes.isInitialized)
-                    StorageUtil.uploadProfilePicture(selectedImageBytes) { imagePath ->
-                        FirestoreUtil.updateCurrentUser(
-                            args.lastName,
-                            args.email,
-                            args.firstName,
-                            args.phone,
-                            args.interest1,
-                            args.interest2,
-                            args.interest3,
-                            age,
-                            sex,
-                            args.language1,
-                            args.language2,
-                            imagePath
-                        )
+                mAuth = FirebaseAuth.getInstance()
+
+                mAuth.createUserWithEmailAndPassword(args.email, args.password)
+                    .addOnCompleteListener { task: Task<AuthResult> ->
+                        if (task.isSuccessful) {
+                            //Registration OK
+
+                            FirestoreUtil.initCurrentUserIfFirstTime {
+                                // val firebaseUser = mAuth.currentUser!!
+
+                            }
+
+                            var radioGroup: RadioGroup = binding.radioGroup
+                            var selectedId: Int = radioGroup.checkedRadioButtonId
+                            var radioButton: RadioButton = view!!.findViewById(selectedId)
+                            var sex: String = radioButton.getText().toString().trim()
+                            var age: Int = Integer.parseInt(ageString)
+                            if (::selectedImageBytes.isInitialized)
+                                StorageUtil.uploadProfilePicture(selectedImageBytes) { imagePath ->
+                                    FirestoreUtil.updateCurrentUser(
+                                        args.firstName,
+                                        args.lastName,
+                                        args.email,
+                                        args.phone,
+                                        args.interest1,
+                                        args.interest2,
+                                        args.interest3,
+                                        age,
+                                        sex,
+                                        args.language1,
+                                        args.language2,
+                                        imagePath
+                                    )
+                                }
+                            else {
+
+                                val selectedImagePath =
+                                    Uri.parse("android.resource://" + context!!.getPackageName() + "/drawable/people")
+                                val selectedImageBmp =
+                                    MediaStore.Images.Media.getBitmap(activity?.contentResolver, selectedImagePath)
+                                val outputStream = ByteArrayOutputStream()
+                                selectedImageBmp.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
+                                selectedImageBytes = outputStream.toByteArray()
+
+                                StorageUtil.uploadProfilePicture(selectedImageBytes) { imagePath ->
+                                    FirestoreUtil.updateCurrentUser(
+                                        args.firstName,
+                                        args.lastName,
+                                        args.email,
+                                        args.phone,
+                                        args.interest1,
+                                        args.interest2,
+                                        args.interest3,
+                                        age,
+                                        sex,
+                                        args.language1,
+                                        args.language2,
+                                        imagePath
+                                    )
+                                }
+                            }
+
+                        view!!.findNavController()
+                            .navigate(ProfilePictureFragmentDirections.actionProfilePictureFragmentToLoginFragment())
+
+                        } else {
+                            //Registration error
+                            Snackbar.make(view!!, "Registration Failed", Snackbar.LENGTH_LONG).show()
+                        }
+
                     }
-                else {
-
-                    val selectedImagePath =
-                        Uri.parse("android.resource://" + context!!.getPackageName() + "/drawable/people")
-                    val selectedImageBmp =
-                        MediaStore.Images.Media.getBitmap(activity?.contentResolver, selectedImagePath)
-                    val outputStream = ByteArrayOutputStream()
-                    selectedImageBmp.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
-                    selectedImageBytes = outputStream.toByteArray()
-
-                    StorageUtil.uploadProfilePicture(selectedImageBytes) { imagePath ->
-                        FirestoreUtil.updateCurrentUser(
-                            args.lastName,
-                            args.email,
-                            args.firstName,
-                            args.phone,
-                            args.interest1,
-                            args.interest2,
-                            args.interest3,
-                            age,
-                            sex,
-                            args.language1,
-                            args.language2,
-                            imagePath
-                        )
-                    }
-                }
-
-                view!!.findNavController()
-                    .navigate(ProfilePictureFragmentDirections.actionProfilePictureFragmentToLoginFragment())
-
             }
+
         }
 
         return binding.root

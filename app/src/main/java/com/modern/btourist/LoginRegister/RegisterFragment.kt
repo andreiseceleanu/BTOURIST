@@ -9,11 +9,6 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
-import com.google.android.gms.tasks.Task
-import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseAuth
-import com.modern.btourist.Database.FirestoreUtil
 import com.modern.btourist.databinding.FragmentRegisterBinding
 import kotlinx.android.synthetic.main.fragment_register.*
 
@@ -23,7 +18,6 @@ import kotlinx.android.synthetic.main.fragment_register.*
 
 class RegisterFragment : Fragment() {
 
-    private lateinit var mAuth: FirebaseAuth
     private var validateFirstName: Boolean = true
     private var validateLastName: Boolean = true
     private var validateEmail: Boolean = true
@@ -39,7 +33,7 @@ class RegisterFragment : Fragment() {
             com.modern.btourist.R.layout.fragment_register,container,false)
 
         val nextButton = binding.registerNextButton1
-        mAuth = FirebaseAuth.getInstance()
+
 
         nextButton.setOnClickListener({registerUser()})
 
@@ -139,31 +133,13 @@ class RegisterFragment : Fragment() {
 
 
         if(validatePhone() && validatePassword() && validateFirstName() && validateLastName() && validateEmail()) {
-            var updateBar = progressBar
-            updateBar.visibility = View.VISIBLE
+
             var phoneInt: Long = phone.toLong()
-            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task: Task<AuthResult> ->
-                if (task.isSuccessful) {
-                    //Registration OK
 
-                    FirestoreUtil.initCurrentUserIfFirstTime {
-                        val firebaseUser = mAuth.currentUser!!
-                        view!!.findNavController().navigate(
-                            RegisterFragmentDirections.actionRegisterFragmentToInterestsFragment(
-                                email,
-                                firstName,
-                                lastName,
-                                phoneInt
-                            )
-                        )
-                    }
 
-                } else {
-                    //Registration error
-                    Snackbar.make(view!!, "Registration Failed", Snackbar.LENGTH_LONG).show()
-                }
+            view!!.findNavController()
+                .navigate(RegisterFragmentDirections.actionRegisterFragmentToInterestsFragment(firstName,lastName,email,phoneInt,password))
 
-            }
         }
 
     }

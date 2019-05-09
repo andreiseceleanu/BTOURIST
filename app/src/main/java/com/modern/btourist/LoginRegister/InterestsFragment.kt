@@ -58,7 +58,7 @@ class InterestsFragment : Fragment() {
                 var languageString1 = languageText1.text.toString().trim()
                 var languageString2 = languageText2.text.toString().trim()
             view!!.findNavController().navigate(InterestsFragmentDirections.actionInterestsFragmentToProfilePictureFragment(args.email,args.firstName,args.lastName,args.phone,interest1,
-                interest2,interest3,languageString1,languageString2))
+                interest2,interest3,languageString1,languageString2,args.password))
             }
         }
 

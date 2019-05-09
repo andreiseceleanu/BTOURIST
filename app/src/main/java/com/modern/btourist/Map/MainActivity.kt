@@ -26,6 +26,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
 import com.modern.btourist.Database.FirestoreUtil
 import com.modern.btourist.LoginRegister.LoginActivity
 import com.modern.btourist.R
@@ -228,6 +229,9 @@ class MainActivity : AppCompatActivity() {
             val editor = prefs.edit()
             editor.putBoolean("AUTHENTIFICATED",false)
             editor.apply()
+
+            FirebaseAuth.getInstance().signOut()
+
 
             //Start login activity, Close main activity
             val intent = Intent(this, LoginActivity::class.java)

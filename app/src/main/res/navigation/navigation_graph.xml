@@ -68,6 +68,9 @@
             app:popEnterAnim="@anim/enter_from_left"
             app:popExitAnim="@anim/exit_to_right"
             app:popUpTo="@+id/loginFragment" />
+        <argument
+            android:name="password"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/profilePictureFragment"
@@ -107,6 +110,9 @@
             app:argType="string" />
         <argument
             android:name="language2"
+            app:argType="string" />
+        <argument
+            android:name="password"
             app:argType="string" />
     </fragment>
 </navigation>
