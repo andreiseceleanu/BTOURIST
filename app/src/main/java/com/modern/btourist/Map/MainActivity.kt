@@ -1,6 +1,9 @@
+@file:Suppress("DEPRECATION")
+
 package com.modern.btourist.Map
 
 import android.Manifest
+import android.app.ActivityManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -24,12 +27,12 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.modern.btourist.Database.FirestoreUtil
 import com.modern.btourist.LoginRegister.LoginActivity
 import com.modern.btourist.R
+import com.modern.btourist.Services.LocationService
 import com.modern.btourist.databinding.ActivityMainBinding
 
 
@@ -47,6 +50,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+
+        FirestoreUtil.updateCurrentUser("","","",0L,"","","",0,"",
+            "","",null,0.0,0.0)
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this )
 
         var bottomNav: BottomNavigationView = findViewById(R.id.bottomNav)
@@ -71,11 +77,13 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
+
     private fun getLastKnownLocation(){
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
             return
         }
-         mFusedLocationClient.getLastLocation().addOnCompleteListener(OnCompleteListener<Location>{
+         mFusedLocationClient.lastLocation.addOnCompleteListener{
              if(it.isSuccessful) {
                  var location: Location? = it.result as Location?
                  if(location!=null){
@@ -83,13 +91,13 @@ class MainActivity : AppCompatActivity() {
                  Log.d("LOCATION", "getLastKnownLocation: latitude " + latLng.latitude)
                  Log.d("LOCATION", "getLastKnownLocation: longitude " + latLng.longitude)
 
-                     FirestoreUtil.updateCurrentUser("","","",0L,"","","",0,"","","",null,
-                         latLng.latitude,latLng.longitude)
+
                  }
              }
 
 
-         })
+         }
+        startLocationService()
     }
 
     private fun checkMapServices(): Boolean {
@@ -241,5 +249,30 @@ class MainActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+    private fun startLocationService(){
+        if(!isLocationServiceRunning()){
+            var serviceIntent = Intent(this,LocationService::class.java)
+//        this.startService(serviceIntent)
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){
+                this.startForegroundService(serviceIntent)
+            }else{
+                startService(serviceIntent);
+            }
+        }
+    }
+
+    private fun isLocationServiceRunning():Boolean {
+        var manager: ActivityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Integer.MAX_VALUE)){
+            if("com.modern.btourist.Services.LocationService" == service.service.className) {
+                Log.d("MainActivity", "isLocationServiceRunning: location service is already running.")
+                return true
+            }
+        }
+        Log.d("MainActivity", "isLocationServiceRunning: location service is not running.")
+        return false
+    }
+
 
 }

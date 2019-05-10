@@ -44,6 +44,9 @@
             android:required="false" />
         <uses-library android:name="com.google.android.maps" />
 
+        <service android:name=".Services.LocationService"
+            android:stopWithTask="true">
+        </service>
     </application>
 
 </manifest>
