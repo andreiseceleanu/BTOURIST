@@ -20,9 +20,14 @@ import com.google.firebase.storage.StorageReference
 import com.modern.btourist.Database.FirestoreUtil
 import com.modern.btourist.Database.StorageUtil
 import com.modern.btourist.Database.User
-import com.modern.btourist.R
 import com.modern.btourist.databinding.FragmentMapBinding
 import java.io.File
+import android.R
+import android.app.Activity
+import android.net.nsd.NsdManager
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.util.Listener
 
 
 class MapFragment : Fragment(),OnMapReadyCallback {
@@ -36,7 +41,7 @@ class MapFragment : Fragment(),OnMapReadyCallback {
     ?: throw NullPointerException("UID is null.")} ")
     private var colRef = firebaseFirestore.collection("users")
     private var markerMap: HashMap<String,Marker> = HashMap()
-
+    private lateinit var registration: ListenerRegistration
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,10 +50,6 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
             // Inflate the layout for this fragment
             binding = DataBindingUtil.inflate(inflater, com.modern.btourist.R.layout.fragment_map,container,false)
-
-        FirestoreUtil.updateCurrentUser("","","",0L,"","","",0,"",
-            "","",null,0.0,0.0)
-
 
         var mapViewBundle: Bundle? = null
         if (savedInstanceState != null) {
@@ -92,76 +93,116 @@ class MapFragment : Fragment(),OnMapReadyCallback {
     override fun onMapReady(map: GoogleMap) {
 
 
-        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(context,R.raw.mapstyle_night))
-        docRef.get().addOnSuccessListener {
-            val user: User? = it.toObject(User::class.java)
-            var latLan: LatLng = LatLng(user!!.latitude,user.longitude)
 
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLan,15F))
+        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, com.modern.btourist.R.raw.mapstyle_night))
+        docRef.get().addOnSuccessListener(activity as Activity) {
+            val user: User? = it.toObject(User::class.java)
+            var latLan: LatLng = LatLng(user!!.latitude, user.longitude)
+
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLan, 15F))
 
         }
 
-        colRef.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+        registration = colRef.addSnapshotListener(activity as Activity) { querySnapshot, firebaseFirestoreException ->
 
             if( firebaseFirestoreException!=null){
                 Log.e("MapFragment","Snapshot listen failed",firebaseFirestoreException)
             }
             if(querySnapshot!=null){
 
+
                 for(document in querySnapshot) {
                     var user: User = document.toObject(User::class.java)
 
+                    var ref: StorageReference = StorageUtil.pathToReference(user.profilePicturePath!!)
+
+                    var myImage: Bitmap
+                    var localFile: File = File.createTempFile("Images", "jpeg")
+                    ref.getFile(localFile).addOnSuccessListener(activity as Activity) {
+                        myImage = BitmapFactory.decodeFile(localFile.absolutePath)
+
+                        //resize marker icon
+                        var resized: Bitmap = Bitmap.createScaledBitmap(myImage, 128, 128, true)
+
+                        // Create a rounded corners bitmap
+                        myImage = getRoundedBitmap(resized, 150F)
+
 
                         var previousMarker: Marker? = markerMap[user.email]
+                        try{
                         if (previousMarker != null) {
-                            previousMarker.position = LatLng(user.latitude, user.longitude)
-                        } else {
-                            var ref: StorageReference = StorageUtil.pathToReference(user.profilePicturePath!!)
+                            var latLng = LatLng(user.latitude, user.longitude)
 
-                            var myImage: Bitmap
-                            var localFile: File = File.createTempFile("Images", "jpeg")
-                            ref.getFile(localFile).addOnSuccessListener {
-                                myImage = BitmapFactory.decodeFile(localFile.absolutePath)
+                            if (FirebaseAuth.getInstance().currentUser!!.email == user.email) {
+                                // Add a border around rounded corners bitmap
+                                myImage = addBorderToRoundedBitmap(myImage, 150F, 10F, Color.rgb(216, 120, 45))
 
-                                //resize marker icon
-                                var resized: Bitmap = Bitmap.createScaledBitmap(myImage, 128, 128, true)
+                                // Add a border around rounded corners bitmap as shadow
+                                myImage = addBorderToRoundedBitmap(myImage, 150F, 3F, Color.LTGRAY)
 
-                                // Create a rounded corners bitmap
-                                myImage = getRoundedBitmap(resized, 150F)
+                                var markerOptionsMyUser: MarkerOptions =
+                                    MarkerOptions().position(LatLng(user!!.latitude, user.longitude))
+                                        .title(user.firstName)
+                                        .snippet("Snippet Test")
+                                        .icon(BitmapDescriptorFactory.fromBitmap(myImage))
+                                        .zIndex(1F)
+                                        .flat(true)
+                                previousMarker.setIcon(BitmapDescriptorFactory.fromBitmap(myImage))
+                                previousMarker.setPosition(latLng)
 
+                            } else {
 
+                                myImage = addBorderToRoundedBitmap(myImage, 150F, 10F, Color.WHITE)
 
-                                if (FirebaseAuth.getInstance().currentUser!!.email == user.email) {
-                                    // Add a border around rounded corners bitmap
-                                    myImage = addBorderToRoundedBitmap(myImage, 150F, 10F, Color.rgb(216, 120, 45))
-
-                                    // Add a border around rounded corners bitmap as shadow
-                                    myImage = addBorderToRoundedBitmap(myImage, 150F, 3F, Color.LTGRAY)
-                                    var markerOptionsMyUser: MarkerOptions =
-                                        MarkerOptions().position(LatLng(user!!.latitude, user.longitude))
-                                            .title(user.firstName)
-                                            .snippet("Snippet Test")
-                                            .icon(BitmapDescriptorFactory.fromBitmap(myImage))
-                                            .zIndex(1F)
-                                            .flat(true)
-                                    var marker = map.addMarker(markerOptionsMyUser)
-                                    markerMap[user.email] = marker
-                                } else {
-                                    // Add a border around rounded corners bitmap
-                                    myImage = addBorderToRoundedBitmap(myImage, 150F, 10F, Color.WHITE)
-
-                                    // Add a border around rounded corners bitmap as shadow
-                                    myImage = addBorderToRoundedBitmap(myImage, 150F, 3F, Color.LTGRAY)
-                                    var markerOptionsUsers: MarkerOptions =
-                                        MarkerOptions().position(LatLng(user!!.latitude, user.longitude))
-                                            .title(user.firstName)
-                                            .snippet("Snippet Test")
-                                            .icon(BitmapDescriptorFactory.fromBitmap(myImage))
-                                            .flat(true)
-                                    var marker = map.addMarker(markerOptionsUsers)
-                                    markerMap[user.email] = marker
-                                }
+                                // Add a border around rounded corners bitmap as shadow
+                                myImage = addBorderToRoundedBitmap(myImage, 150F, 3F, Color.LTGRAY)
+                                var markerOptionsMyUser: MarkerOptions =
+                                    MarkerOptions().position(LatLng(user!!.latitude, user.longitude))
+                                        .title(user.firstName)
+                                        .snippet("Snippet Test")
+                                        .icon(BitmapDescriptorFactory.fromBitmap(myImage))
+                                        .zIndex(1F)
+                                        .flat(true)
+                                previousMarker.setIcon(BitmapDescriptorFactory.fromBitmap(myImage))
+                                previousMarker.setPosition(latLng)
                             }
+                        } else {
+
+                            if (FirebaseAuth.getInstance().currentUser!!.email == user.email) {
+
+                                myImage = addBorderToRoundedBitmap(myImage, 150F, 10F, Color.rgb(216, 120, 45))
+
+                                // Add a border around rounded corners bitmap as shadow
+                                myImage = addBorderToRoundedBitmap(myImage, 150F, 3F, Color.LTGRAY)
+                                var markerOptionsMyUser: MarkerOptions =
+                                    MarkerOptions().position(LatLng(user!!.latitude, user.longitude))
+                                        .title(user.firstName)
+                                        .snippet("Snippet Test")
+                                        .icon(BitmapDescriptorFactory.fromBitmap(myImage))
+                                        .zIndex(1F)
+                                        .flat(true)
+                                var marker = map.addMarker(markerOptionsMyUser)
+                                markerMap[user.email] = marker
+                            } else {
+                                // Add a border around rounded corners bitmap
+                                myImage = addBorderToRoundedBitmap(myImage, 150F, 10F, Color.WHITE)
+
+                                // Add a border around rounded corners bitmap as shadow
+                                myImage = addBorderToRoundedBitmap(myImage, 150F, 3F, Color.LTGRAY)
+                                var markerOptionsUsers: MarkerOptions =
+                                    MarkerOptions().position(LatLng(user!!.latitude, user.longitude))
+                                        .title(user.firstName)
+                                        .snippet("Snippet Test")
+                                        .icon(BitmapDescriptorFactory.fromBitmap(myImage))
+                                        .flat(true)
+                                var marker = map.addMarker(markerOptionsUsers)
+                                markerMap[user.email] = marker
+                            }
+                        }
+                    }catch (e : KotlinNullPointerException){
+                            Log.d("MapFragment","KotlinNullPointerException catched")
+                            e.printStackTrace()
+                        }
                         }
                     }
 
@@ -180,12 +221,14 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
      override fun onDestroy() {
         mMapView.onDestroy()
+         registration.remove()
         super.onDestroy()
 
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
+
         mMapView.onLowMemory()
     }
 

@@ -238,13 +238,11 @@ class MainActivity : AppCompatActivity() {
             editor.putBoolean("AUTHENTIFICATED",false)
             editor.apply()
 
-            FirebaseAuth.getInstance().signOut()
-
-
             //Start login activity, Close main activity
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             this.finish()
+            FirebaseAuth.getInstance().signOut()
 
         }
         return super.onOptionsItemSelected(item)

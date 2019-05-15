@@ -75,6 +75,7 @@ class LocationService : Service() {
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             Log.d(TAG, "getLocation: stopping the location service.")
+            stopForeground(true)
             stopSelf()
             return
         }
@@ -96,6 +97,7 @@ class LocationService : Service() {
                         }catch (e: NullPointerException) {
                             Log.e(TAG, "saveUserLocation: User instance is null, stopping location service.")
                             Log.e(TAG, "saveUserLocation: NullPointerException: " + e.message)
+                            stopForeground(true)
                             stopSelf()
                         }
 
@@ -134,8 +136,8 @@ class LocationService : Service() {
     companion object {
 
         private val TAG = "LocationService"
-        private val UPDATE_INTERVAL = (4 * 1000).toLong()  /* 4 secs */
-        private val FASTEST_INTERVAL: Long = 5000 /* 2 sec */
+        private val UPDATE_INTERVAL = (2 * 1000).toLong()  /* 4 secs */
+        private val FASTEST_INTERVAL: Long = 1000 /* 2 sec */
     }
 
 
