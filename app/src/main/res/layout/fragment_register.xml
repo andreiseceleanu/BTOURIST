@@ -158,7 +158,7 @@
         android:drawableLeft="@drawable/ic_action_phone"
         android:ems="10"
         android:fontFamily="@font/trench100free"
-        android:hint="Phone"
+        android:hint="Phone : Include Prefix(E.g. 4 for RO)"
         android:inputType="phone"
         android:textAlignment="center"
         android:textColor="@color/btouristPurple"

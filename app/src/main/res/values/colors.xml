@@ -8,4 +8,6 @@
     <color name="orangeAccent">#D8782D</color>
     <color name="whiteAccent">#F8F6F7</color>
     <color name="bejAccent">#E9D383</color>
+    <color name="greyAccent">#FF424242</color>#bbbec1
+    <color name="lightGreyAccent">#bbbec1</color>
 </resources>

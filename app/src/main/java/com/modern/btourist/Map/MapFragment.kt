@@ -21,13 +21,33 @@ import com.modern.btourist.Database.FirestoreUtil
 import com.modern.btourist.Database.StorageUtil
 import com.modern.btourist.Database.User
 import com.modern.btourist.databinding.FragmentMapBinding
-import java.io.File
-import android.R
 import android.app.Activity
 import android.net.nsd.NsdManager
+import android.provider.MediaStore
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
+import com.bumptech.glide.Glide
+import com.bumptech.glide.Priority
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.util.Listener
+import com.google.gson.Gson
+import com.modern.btourist.R
+import com.squareup.picasso.Callback
+import com.squareup.picasso.Picasso
+import java.io.*
+import java.lang.Exception
+import java.net.URL
+import java.net.URLConnection
 
 
 class MapFragment : Fragment(),OnMapReadyCallback {
@@ -95,6 +115,8 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
 
         map.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, com.modern.btourist.R.raw.mapstyle_night))
+
+
         docRef.get().addOnSuccessListener(activity as Activity) {
             val user: User? = it.toObject(User::class.java)
             var latLan: LatLng = LatLng(user!!.latitude, user.longitude)
@@ -169,6 +191,8 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                         } else {
 
                             if (FirebaseAuth.getInstance().currentUser!!.email == user.email) {
+                                var gson: Gson = Gson()
+                                var userInfoString: String = gson.toJson(user)
 
                                 myImage = addBorderToRoundedBitmap(myImage, 150F, 10F, Color.rgb(216, 120, 45))
 
@@ -177,13 +201,16 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                                 var markerOptionsMyUser: MarkerOptions =
                                     MarkerOptions().position(LatLng(user!!.latitude, user.longitude))
                                         .title(user.firstName)
-                                        .snippet("Snippet Test")
+                                        .snippet(userInfoString)
                                         .icon(BitmapDescriptorFactory.fromBitmap(myImage))
                                         .zIndex(1F)
                                         .flat(true)
                                 var marker = map.addMarker(markerOptionsMyUser)
                                 markerMap[user.email] = marker
                             } else {
+                                var gson: Gson = Gson()
+                                var userInfoString: String = gson.toJson(user)
+
                                 // Add a border around rounded corners bitmap
                                 myImage = addBorderToRoundedBitmap(myImage, 150F, 10F, Color.WHITE)
 
@@ -192,7 +219,7 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                                 var markerOptionsUsers: MarkerOptions =
                                     MarkerOptions().position(LatLng(user!!.latitude, user.longitude))
                                         .title(user.firstName)
-                                        .snippet("Snippet Test")
+                                        .snippet(userInfoString)
                                         .icon(BitmapDescriptorFactory.fromBitmap(myImage))
                                         .flat(true)
                                 var marker = map.addMarker(markerOptionsUsers)
@@ -204,6 +231,49 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                             e.printStackTrace()
                         }
                         }
+
+                    map.setInfoWindowAdapter(object: GoogleMap.InfoWindowAdapter {
+                        override fun getInfoWindow(marker: Marker): View? {
+                            return null
+                        }
+
+                        override fun getInfoContents(marker: Marker): View {
+                            val view = (context as Activity).layoutInflater
+                                .inflate(com.modern.btourist.R.layout.custom_info_window, null)
+
+                            val name_tv = view.findViewById<TextView>(R.id.nameText)
+                            val age_tv = view.findViewById<TextView>(R.id.ageTextView)
+                            val phone_tv = view.findViewById<TextView>(R.id.phoneText)
+
+                            val interest1_tv = view.findViewById<TextView>(R.id.interestText1)
+                            val interest2_tv = view.findViewById<TextView>(R.id.interestText2)
+                            val interest3_tv = view.findViewById<TextView>(R.id.interestText3)
+
+                            val language1_tv = view.findViewById<TextView>(R.id.languageText1)
+                            val language2_tv = view.findViewById<TextView>(R.id.languageText2)
+
+                            val userText = view.findViewById<TextView>(R.id.fullNameText)
+
+                            var gson: Gson = Gson()
+                            var user: User = gson.fromJson(marker.snippet,User::class.java)
+
+
+                            var fullName: String = user.firstName+" "+user.lastName
+                            userText.text = fullName
+                            name_tv.text = user.sex
+                            var ageString: String = user.age.toString()
+                            age_tv.text = ageString
+                            phone_tv.text = user.phone.toString()
+                            interest1_tv.text = user.interest1
+                            interest2_tv.text = user.interest2
+                            interest3_tv.text = user.interest3
+                            language1_tv.text = user.language1
+                            language2_tv.text = user.language2
+
+                            return view
+                        }
+                    })
+
                     }
 
                 }
@@ -256,13 +326,13 @@ class MapFragment : Fragment(),OnMapReadyCallback {
         // Draw a rounded rectangle object on canvas
         canvas.drawRoundRect(rectF, cornerRadius, cornerRadius, paint)
 
-        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
 
         // Make a rounded image by copying at the exact center position of source image
-        canvas.drawBitmap(srcBitmap, 0F, 0F, paint);
+        canvas.drawBitmap(srcBitmap, 0F, 0F, paint)
 
         // Free the native object associated with this bitmap.
-        srcBitmap.recycle();
+        srcBitmap.recycle()
 
         // Return the circular bitmap
         return dstBitmap;
@@ -280,7 +350,7 @@ class MapFragment : Fragment(),OnMapReadyCallback {
         );
 
         // Initialize a new Canvas instance
-        var canvas = Canvas(dstBitmap);
+        var canvas = Canvas(dstBitmap)
 
         // Initialize a new Paint instance to draw border
         var paint = Paint()
@@ -298,7 +368,7 @@ class MapFragment : Fragment(),OnMapReadyCallback {
         );
 
         // Initialize a new instance of RectF
-        var rectF = RectF(rect);
+        var rectF = RectF(rect)
 
         // Draw rounded rectangle as a border/shadow on canvas
         canvas.drawRoundRect(rectF,cornerRadius,cornerRadius,paint)
@@ -310,6 +380,24 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
         // Return the bordered circular bitmap
         return dstBitmap
+    }
+    class MarkerCallback : Callback{
+
+        var marker: Marker? = null
+
+         constructor(marker: Marker){
+             this.marker = marker
+         }
+
+        override fun onSuccess() {
+            if (marker != null && marker!!.isInfoWindowShown) {
+                marker!!.showInfoWindow()
+            }
+        }
+
+        override fun onError(e: Exception?) {
+            Log.e("MarkerCallback", "Error loading thumbnail!")
+        }
     }
 
 }
