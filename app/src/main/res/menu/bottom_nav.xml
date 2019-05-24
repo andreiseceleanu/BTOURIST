@@ -4,14 +4,20 @@
 
     <item
         android:id="@+id/bottomMapButton"
-        android:icon="@android:drawable/ic_menu_mapmode"
+        android:icon="@drawable/ic_map"
         android:title="Map" />
     <item
-        android:id="@+id/bottonListButton"
-        android:icon="@drawable/ic_action_user"
-        android:title="List" />
+        android:id="@+id/bottonGuidesButton"
+        android:icon="@drawable/ic_guides"
+        android:title="Guides" />
 
     <item
-        android:id="@+id/button"
-        android:title="New"/>
+        android:id="@+id/bottomAttractionsButton"
+        android:icon="@drawable/ic_attraction"
+        android:title="Attractions" />
+
+    <item
+        android:id="@+id/bottomInfoButton"
+        android:icon="@drawable/ic_info_bot"
+        android:title="Info" />
 </menu>

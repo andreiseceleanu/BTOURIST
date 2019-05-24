@@ -14,14 +14,75 @@
             app:destination="@id/loginFragment2" />
         <action
             android:id="@+id/action_mapFragment_to_listFragment"
-            app:destination="@id/listFragment" />
+            app:destination="@id/guidesFragment" />
+        <action
+            android:id="@+id/action_mapFragment_to_categoriesFragment"
+            app:destination="@id/categoriesFragment" />
+        <action
+            android:id="@+id/action_mapFragment_to_infoListFragment"
+            app:destination="@id/infoListFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment2"
         android:name="com.modern.btourist.LoginRegister.LoginFragment"
-        android:label="LoginFragment" />
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login"/>
     <fragment
-        android:id="@+id/listFragment"
-        android:name="com.modern.btourist.ListFragment"
-        android:label="ListFragment" />
+        android:id="@+id/guidesFragment"
+        android:name="com.modern.btourist.Guides.GuidesFragment"
+        android:label="GuidesFragment" >
+        <action
+            android:id="@+id/action_guidesFragment_to_createGuideFragment"
+            app:destination="@id/createGuideFragment" />
+        <action
+            android:id="@+id/action_guidesFragment_to_guide"
+            app:destination="@id/guide" />
+    </fragment>
+    <fragment
+        android:id="@+id/categoriesFragment"
+        android:name="com.modern.btourist.Attractions.CategoriesFragment"
+        android:label="fragment_categories2"
+        tools:layout="@layout/fragment_categories2" >
+        <action
+            android:id="@+id/action_categoriesFragment_to_attractionListFragment"
+            app:destination="@id/attractionListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/attractionListFragment"
+        android:name="com.modern.btourist.Attractions.AttractionListFragment"
+        android:label="fragment_attraction_list"
+        tools:layout="@layout/fragment_attraction_list" >
+        <action
+            android:id="@+id/action_attractionListFragment_to_attractionInfoFragment"
+            app:destination="@id/attractionInfoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/attractionInfoFragment"
+        android:name="com.modern.btourist.Attractions.AttractionInfoFragment"
+        android:label="fragment_attraction_info"
+        tools:layout="@layout/fragment_attraction_info" />
+    <fragment
+        android:id="@+id/createGuideFragment"
+        android:name="com.modern.btourist.Guides.CreateGuideFragment"
+        android:label="fragment_create_guide"
+        tools:layout="@layout/fragment_create_guide" />
+    <fragment
+        android:id="@+id/infoListFragment"
+        android:name="com.modern.btourist.Info.InfoListFragment"
+        android:label="fragment_info_list"
+        tools:layout="@layout/fragment_info_list" >
+        <action
+            android:id="@+id/action_infoListFragment_to_infoFragment"
+            app:destination="@id/infoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/infoFragment"
+        android:name="com.modern.btourist.Info.InfoFragment"
+        android:label="fragment_info"
+        tools:layout="@layout/fragment_info" />
+    <fragment
+        android:id="@+id/guide"
+        android:name="com.modern.btourist.Guides.Guide"
+        android:label="fragment_guide"
+        tools:layout="@layout/fragment_guide" />
 </navigation>

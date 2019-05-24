@@ -66,8 +66,16 @@ class MainActivity : AppCompatActivity() {
                         navController.navigate(R.id.mapFragment, null)
                         return@OnNavigationItemSelectedListener true
                     }
-                    R.id.bottonListButton -> {
-                        navController.navigate(R.id.listFragment, null)
+                    R.id.bottonGuidesButton -> {
+                        navController.navigate(R.id.guidesFragment, null)
+                        return@OnNavigationItemSelectedListener true
+                    }
+                    R.id.bottomAttractionsButton -> {
+                        navController.navigate(R.id.categoriesFragment, null)
+                        return@OnNavigationItemSelectedListener true
+                    }
+                    R.id.bottomInfoButton -> {
+                        navController.navigate(R.id.infoListFragment, null)
                         return@OnNavigationItemSelectedListener true
                     }
 

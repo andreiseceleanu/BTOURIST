@@ -108,30 +108,6 @@ class LocationService : Service() {
         ) // Looper.myLooper tells this to repeat forever until thread is destroyed
     }
 
-    /*private fun saveUserLocation(userLocation: User) {
-
-        try {
-            val locationRef = FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(FirebaseAuth.getInstance().uid!!)
-
-            FirestoreUtil.updateCurrentUser(userLocation)
-            locationRef.set(userLocation).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d(
-                        TAG, "onComplete: \ninserted user location into database." +
-                                "\n latitude: " + userLocation.latitude +
-                                "\n longitude: " + userLocation.longitude
-                    )
-                }
-            }
-        } catch (e: NullPointerException) {
-            Log.e(TAG, "saveUserLocation: User instance is null, stopping location service.")
-            Log.e(TAG, "saveUserLocation: NullPointerException: " + e.message)
-            stopSelf()
-        }
-
-    }*/
 
     companion object {
 

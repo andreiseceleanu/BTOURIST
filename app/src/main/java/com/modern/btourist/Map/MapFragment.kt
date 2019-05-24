@@ -239,7 +239,7 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
                         override fun getInfoContents(marker: Marker): View {
                             val view = (context as Activity).layoutInflater
-                                .inflate(com.modern.btourist.R.layout.custom_info_window, null)
+                                .inflate(R.layout.custom_info_window, null)
 
                             val name_tv = view.findViewById<TextView>(R.id.nameText)
                             val age_tv = view.findViewById<TextView>(R.id.ageTextView)

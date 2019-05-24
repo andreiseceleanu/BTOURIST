@@ -7,7 +7,8 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.modern.btourist.LoginRegister.LoginFragment"
-        android:label="LoginFragment" >
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
             app:destination="@id/registerFragment"
@@ -75,7 +76,8 @@
     <fragment
         android:id="@+id/profilePictureFragment"
         android:name="com.modern.btourist.LoginRegister.ProfilePictureFragment"
-        android:label="ProfilePictureFragment" >
+        android:label="ProfilePictureFragment"
+        tools:layout="@layout/fragment_profile_picture">
         <action
             android:id="@+id/action_profilePictureFragment_to_loginFragment"
             app:destination="@id/loginFragment"

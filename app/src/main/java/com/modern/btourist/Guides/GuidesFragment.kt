@@ -1,4 +1,4 @@
-package com.modern.btourist
+package com.modern.btourist.Guides
 
 
 import android.os.Bundle
@@ -6,8 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.modern.btourist.R
 
-class ListFragment : Fragment() {
+class GuidesFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
