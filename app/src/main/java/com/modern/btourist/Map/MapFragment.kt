@@ -17,11 +17,9 @@ import com.google.android.gms.maps.model.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.StorageReference
-import com.modern.btourist.Database.FirestoreUtil
-import com.modern.btourist.Database.StorageUtil
-import com.modern.btourist.Database.User
 import com.modern.btourist.databinding.FragmentMapBinding
 import android.app.Activity
+import android.content.Context
 import android.net.nsd.NsdManager
 import android.provider.MediaStore
 import android.widget.Button
@@ -37,13 +35,17 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
+import com.google.common.reflect.Reflection.getPackageName
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.util.Listener
 import com.google.gson.Gson
+import com.modern.btourist.Database.*
 import com.modern.btourist.R
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
+import org.w3c.dom.Text
 import java.io.*
 import java.lang.Exception
 import java.net.URL
@@ -60,8 +62,10 @@ class MapFragment : Fragment(),OnMapReadyCallback {
     private var docRef = firebaseFirestore.document("users/${FirebaseAuth.getInstance().uid
     ?: throw NullPointerException("UID is null.")} ")
     private var colRef = firebaseFirestore.collection("users")
+    private var attractionColRef = firebaseFirestore.collection("attractions")
     private var markerMap: HashMap<String,Marker> = HashMap()
     private lateinit var registration: ListenerRegistration
+     var markerPlaces: ArrayList<String> = ArrayList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -107,6 +111,7 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
      override fun onStop() {
         super.onStop()
+         //markerMap.clear()
         mMapView.onStop()
     }
 
@@ -115,6 +120,40 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
 
         map.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, com.modern.btourist.R.raw.mapstyle_night))
+
+        attractionColRef.addSnapshotListener(activity as Activity) { querySnapshot, firebaseFirestoreException ->
+
+            if( firebaseFirestoreException!=null){
+                Log.e("MapFragment","Attraction snapshot listen failed",firebaseFirestoreException)
+            }
+            if(querySnapshot!=null) {
+                for (document in querySnapshot) {
+                    var attractionList = ArrayList<Attraction>()
+                    var attraction: Attraction = document.toObject(Attraction::class.java)
+                    var gson: Gson = Gson()
+                    var attractionInfoString: String = gson.toJson(attraction)
+
+                    fun getIcon(category: String): Int{
+                        when(category){
+                            "Culture, Arhitecture and History" -> return R.drawable.museum_gradient
+                            "Nature" -> return R.drawable.park_gradient
+                        }
+                        return 0
+                    }
+
+                    var icon: BitmapDescriptor = BitmapDescriptorFactory.fromResource(getIcon(attraction.category))
+                    var markerOptionsAttraction: MarkerOptions =
+                        MarkerOptions().position(LatLng(attraction.latitude, attraction.longitude))
+                            .title(attraction.name)
+                            .snippet(attractionInfoString)
+                            .icon(icon)
+
+                    var attractionMarker = map.addMarker(markerOptionsAttraction)
+                    markerPlaces.add(attractionMarker.id)
+                    attractionList.add(attraction)
+                }
+            }
+        }
 
 
         docRef.get().addOnSuccessListener(activity as Activity) {
@@ -151,7 +190,8 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
 
                         var previousMarker: Marker? = markerMap[user.email]
-                        try{
+                        try{var gson: Gson = Gson()
+                            var userInfoString: String = gson.toJson(user)
                         if (previousMarker != null) {
                             var latLng = LatLng(user.latitude, user.longitude)
 
@@ -163,14 +203,14 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                                 myImage = addBorderToRoundedBitmap(myImage, 150F, 3F, Color.LTGRAY)
 
                                 var markerOptionsMyUser: MarkerOptions =
-                                    MarkerOptions().position(LatLng(user!!.latitude, user.longitude))
+                                    MarkerOptions().position(LatLng(user.latitude, user.longitude))
                                         .title(user.firstName)
-                                        .snippet("Snippet Test")
+                                        .snippet(userInfoString)
                                         .icon(BitmapDescriptorFactory.fromBitmap(myImage))
                                         .zIndex(1F)
-                                        .flat(true)
+
                                 previousMarker.setIcon(BitmapDescriptorFactory.fromBitmap(myImage))
-                                previousMarker.setPosition(latLng)
+                                previousMarker.position = latLng
 
                             } else {
 
@@ -179,20 +219,19 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                                 // Add a border around rounded corners bitmap as shadow
                                 myImage = addBorderToRoundedBitmap(myImage, 150F, 3F, Color.LTGRAY)
                                 var markerOptionsMyUser: MarkerOptions =
-                                    MarkerOptions().position(LatLng(user!!.latitude, user.longitude))
+                                    MarkerOptions().position(LatLng(user.latitude, user.longitude))
                                         .title(user.firstName)
-                                        .snippet("Snippet Test")
+                                        .snippet(userInfoString)
                                         .icon(BitmapDescriptorFactory.fromBitmap(myImage))
                                         .zIndex(1F)
-                                        .flat(true)
+
                                 previousMarker.setIcon(BitmapDescriptorFactory.fromBitmap(myImage))
-                                previousMarker.setPosition(latLng)
+                                previousMarker.position = latLng
                             }
                         } else {
 
                             if (FirebaseAuth.getInstance().currentUser!!.email == user.email) {
-                                var gson: Gson = Gson()
-                                var userInfoString: String = gson.toJson(user)
+
 
                                 myImage = addBorderToRoundedBitmap(myImage, 150F, 10F, Color.rgb(216, 120, 45))
 
@@ -204,12 +243,10 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                                         .snippet(userInfoString)
                                         .icon(BitmapDescriptorFactory.fromBitmap(myImage))
                                         .zIndex(1F)
-                                        .flat(true)
+
                                 var marker = map.addMarker(markerOptionsMyUser)
                                 markerMap[user.email] = marker
                             } else {
-                                var gson: Gson = Gson()
-                                var userInfoString: String = gson.toJson(user)
 
                                 // Add a border around rounded corners bitmap
                                 myImage = addBorderToRoundedBitmap(myImage, 150F, 10F, Color.WHITE)
@@ -221,7 +258,7 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                                         .title(user.firstName)
                                         .snippet(userInfoString)
                                         .icon(BitmapDescriptorFactory.fromBitmap(myImage))
-                                        .flat(true)
+
                                 var marker = map.addMarker(markerOptionsUsers)
                                 markerMap[user.email] = marker
                             }
@@ -238,40 +275,75 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                         }
 
                         override fun getInfoContents(marker: Marker): View {
-                            val view = (context as Activity).layoutInflater
-                                .inflate(R.layout.custom_info_window, null)
+                            if (markerPlaces.contains(marker.id)) {
+                                val view = (context as Activity).layoutInflater
+                                    .inflate(R.layout.custom_info_window_attraction, null)
 
-                            val name_tv = view.findViewById<TextView>(R.id.nameText)
-                            val age_tv = view.findViewById<TextView>(R.id.ageTextView)
-                            val phone_tv = view.findViewById<TextView>(R.id.phoneText)
+                                fun getImage(imageName: String): Int {
 
-                            val interest1_tv = view.findViewById<TextView>(R.id.interestText1)
-                            val interest2_tv = view.findViewById<TextView>(R.id.interestText2)
-                            val interest3_tv = view.findViewById<TextView>(R.id.interestText3)
+                                    var app = Btourist.instance.applicationContext
 
-                            val language1_tv = view.findViewById<TextView>(R.id.languageText1)
-                            val language2_tv = view.findViewById<TextView>(R.id.languageText2)
+                                    var drawableResourceId = app.resources.getIdentifier(imageName, "drawable", app.packageName)
 
-                            val userText = view.findViewById<TextView>(R.id.fullNameText)
+                                    return drawableResourceId
+                                }
 
-                            var gson: Gson = Gson()
-                            var user: User = gson.fromJson(marker.snippet,User::class.java)
+                                val nameText = view.findViewById<TextView>(R.id.attractionNameText)
+                                val categoryText = view.findViewById<TextView>(R.id.attractionCategoryText)
+                                val descriptorText = view.findViewById<TextView>(R.id.attractionDescriptionText)
+                                val phoneText = view.findViewById<TextView>(R.id.attractionPhoneText)
+                                val websiteText = view.findViewById<TextView>(R.id.attractionWebsiteText)
+                                val attrImage = view.findViewById<ImageView>(R.id.attractionImage)
+
+                                var gson = Gson()
+                                var attraction: Attraction = gson.fromJson(marker.snippet, Attraction::class.java)
+
+                                var resource = getImage(attraction.image)
+                                nameText.text = attraction.name
+                                categoryText.text = attraction.category
+                                descriptorText.text = attraction.description
+                                phoneText.text ="Phone: "+ attraction.phone.toString()
+                                websiteText.text = "Website: "+ attraction.website
+
+                                attrImage.setImageResource(resource)
+
+                                return view
+                            }
+                                val view = (context as Activity).layoutInflater
+                                    .inflate(R.layout.custom_info_window, null)
+
+                                val name_tv = view.findViewById<TextView>(R.id.nameText)
+                                val age_tv = view.findViewById<TextView>(R.id.ageTextView)
+                                val phone_tv = view.findViewById<TextView>(R.id.phoneText)
+
+                                val interest1_tv = view.findViewById<TextView>(R.id.interestText1)
+                                val interest2_tv = view.findViewById<TextView>(R.id.interestText2)
+                                val interest3_tv = view.findViewById<TextView>(R.id.interestText3)
+
+                                val language1_tv = view.findViewById<TextView>(R.id.languageText1)
+                                val language2_tv = view.findViewById<TextView>(R.id.languageText2)
+
+                                val userText = view.findViewById<TextView>(R.id.fullNameText)
+
+                                var gson: Gson = Gson()
+                                var user: User = gson.fromJson(marker.snippet, User::class.java)
 
 
-                            var fullName: String = user.firstName+" "+user.lastName
-                            userText.text = fullName
-                            name_tv.text = user.sex
-                            var ageString: String = user.age.toString()
-                            age_tv.text = ageString
-                            phone_tv.text = user.phone.toString()
-                            interest1_tv.text = user.interest1
-                            interest2_tv.text = user.interest2
-                            interest3_tv.text = user.interest3
-                            language1_tv.text = user.language1
-                            language2_tv.text = user.language2
+                                var fullName: String = user.firstName + " " + user.lastName
+                                userText.text = fullName
+                                name_tv.text = user.sex
+                                var ageString: String = user.age.toString()
+                                age_tv.text = ageString
+                                phone_tv.text = user.phone.toString()
+                                interest1_tv.text = user.interest1
+                                interest2_tv.text = user.interest2
+                                interest3_tv.text = user.interest3
+                                language1_tv.text = user.language1
+                                language2_tv.text = user.language2
 
-                            return view
-                        }
+                                return view
+                            }
+
                     })
 
                     }
@@ -287,11 +359,13 @@ class MapFragment : Fragment(),OnMapReadyCallback {
      override fun onPause() {
         mMapView.onPause()
         super.onPause()
+         //markerMap.clear()
     }
 
      override fun onDestroy() {
         mMapView.onDestroy()
          registration.remove()
+         markerMap.clear()
         super.onDestroy()
 
     }

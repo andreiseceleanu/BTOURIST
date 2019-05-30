@@ -13,7 +13,7 @@
         android:required="true"/>
 
 
-    <application
+    <application android:name="com.modern.btourist.Database.Btourist"
 
             android:allowBackup="true"
             android:icon="@mipmap/icon_app_round"

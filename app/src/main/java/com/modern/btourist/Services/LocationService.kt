@@ -112,8 +112,8 @@ class LocationService : Service() {
     companion object {
 
         private val TAG = "LocationService"
-        private val UPDATE_INTERVAL = (2 * 1000).toLong()  /* 4 secs */
-        private val FASTEST_INTERVAL: Long = 1000 /* 2 sec */
+        private val UPDATE_INTERVAL = (8 * 1000).toLong()  /* 12 secs */
+        private val FASTEST_INTERVAL: Long = 5000 /* 10 sec */
     }
 
 
