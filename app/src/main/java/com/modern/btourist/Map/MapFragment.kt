@@ -135,8 +135,11 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
                     fun getIcon(category: String): Int{
                         when(category){
-                            "Culture, Arhitecture and History" -> return R.drawable.museum_gradient
+                            "Culture, Architecture and History" -> return R.drawable.museum_gradient
                             "Nature" -> return R.drawable.park_gradient
+                            "Nightlife" -> return R.drawable.bar_gradient
+                            "Food" -> return R.drawable.restaurant_gradient
+                            "Shopping" -> return R.drawable.shop_gradient
                         }
                         return 0
                     }
@@ -202,13 +205,6 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                                 // Add a border around rounded corners bitmap as shadow
                                 myImage = addBorderToRoundedBitmap(myImage, 150F, 3F, Color.LTGRAY)
 
-                                var markerOptionsMyUser: MarkerOptions =
-                                    MarkerOptions().position(LatLng(user.latitude, user.longitude))
-                                        .title(user.firstName)
-                                        .snippet(userInfoString)
-                                        .icon(BitmapDescriptorFactory.fromBitmap(myImage))
-                                        .zIndex(1F)
-
                                 previousMarker.setIcon(BitmapDescriptorFactory.fromBitmap(myImage))
                                 previousMarker.position = latLng
 
@@ -218,13 +214,6 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
                                 // Add a border around rounded corners bitmap as shadow
                                 myImage = addBorderToRoundedBitmap(myImage, 150F, 3F, Color.LTGRAY)
-                                var markerOptionsMyUser: MarkerOptions =
-                                    MarkerOptions().position(LatLng(user.latitude, user.longitude))
-                                        .title(user.firstName)
-                                        .snippet(userInfoString)
-                                        .icon(BitmapDescriptorFactory.fromBitmap(myImage))
-                                        .zIndex(1F)
-
                                 previousMarker.setIcon(BitmapDescriptorFactory.fromBitmap(myImage))
                                 previousMarker.position = latLng
                             }
@@ -301,7 +290,9 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                                 var resource = getImage(attraction.image)
                                 nameText.text = attraction.name
                                 categoryText.text = attraction.category
-                                descriptorText.text = attraction.description
+                                var description = attraction.description
+                                description.replace("\\n", "\n")
+                                descriptorText.text = description
                                 phoneText.text ="Phone: "+ attraction.phone.toString()
                                 websiteText.text = "Website: "+ attraction.website
 
