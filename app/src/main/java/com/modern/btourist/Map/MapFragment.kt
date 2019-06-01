@@ -19,13 +19,17 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.StorageReference
 import com.modern.btourist.databinding.FragmentMapBinding
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.net.nsd.NsdManager
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.DataSource
@@ -35,12 +39,19 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
+import com.google.android.material.snackbar.Snackbar
+import com.google.common.base.Predicates.equalTo
 import com.google.common.reflect.Reflection.getPackageName
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.util.Listener
 import com.google.gson.Gson
+import com.google.maps.DirectionsApiRequest
+import com.google.maps.GeoApiContext
+import com.google.maps.PendingResult
+import com.google.maps.internal.PolylineEncoding
+import com.google.maps.model.DirectionsResult
 import com.modern.btourist.Database.*
 import com.modern.btourist.R
 import com.squareup.picasso.Callback
@@ -52,7 +63,9 @@ import java.net.URL
 import java.net.URLConnection
 
 
-class MapFragment : Fragment(),OnMapReadyCallback {
+class MapFragment : Fragment(),OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener, GoogleMap.OnPolylineClickListener {
+
+
 
     lateinit var binding: FragmentMapBinding
     private lateinit var mMapView: MapView
@@ -66,6 +79,12 @@ class MapFragment : Fragment(),OnMapReadyCallback {
     private var markerMap: HashMap<String,Marker> = HashMap()
     private lateinit var registration: ListenerRegistration
      var markerPlaces: ArrayList<String> = ArrayList()
+    var markerEndLocation: ArrayList<String> = ArrayList()
+    private val attractionTripMarkerList: ArrayList<Marker> = ArrayList()
+    private var mGeoApiContext: GeoApiContext? = null
+    private var googleMap: GoogleMap? = null
+    var polylines: ArrayList<PolylineData> = ArrayList()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,7 +92,7 @@ class MapFragment : Fragment(),OnMapReadyCallback {
     ): View? {
 
             // Inflate the layout for this fragment
-            binding = DataBindingUtil.inflate(inflater, com.modern.btourist.R.layout.fragment_map,container,false)
+            binding = DataBindingUtil.inflate(inflater, R.layout.fragment_map,container,false)
 
         var mapViewBundle: Bundle? = null
         if (savedInstanceState != null) {
@@ -84,42 +103,99 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
         mMapView.getMapAsync(this)
 
+        if(mGeoApiContext == null){
+            mGeoApiContext = GeoApiContext.Builder()
+                .apiKey(getString(R.string.maps_api_key))
+                .build()
+        }
+
             return binding.root
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
 
-        var mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY)
-        if (mapViewBundle == null) {
-            mapViewBundle = Bundle()
-            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle)
+    private fun addPolylinesToMap(result:DirectionsResult) {
+        var duration = 999999999L
+        Handler(Looper.getMainLooper()).post {
+            if(polylines.size > 0){
+                for(data in polylines){
+                    data.polyline.remove()
+                }
+                polylines.clear()
+                polylines = ArrayList()
+            }
+            for (route in result.routes) {
+                Log.d("Polylines", "run: leg: " + route.legs[0].toString())
+                val decodedPath = PolylineEncoding.decode(route.overviewPolyline.encodedPath)
+                val newDecodedPath = ArrayList<LatLng>()
+                // This loops through all the LatLng coordinates of ONE polyline.
+                for (latLng in decodedPath) {
+                    // Log.d(TAG, "run: latlng: " + latLng.toString());
+                    newDecodedPath.add(LatLng(
+                        latLng.lat,
+                        latLng.lng
+                    ))
+                }
+
+                val polyline = googleMap!!.addPolyline(PolylineOptions().addAll(newDecodedPath))
+                polyline.color = ContextCompat.getColor(context!!, R.color.lightGreyAccent)
+                polyline.isClickable = true
+                polylines.add(PolylineData(polyline,route.legs[0]))
+
+                var tempDuration  = route.legs[0].duration.inSeconds
+                if(tempDuration < duration){
+                    duration = tempDuration
+                    onPolylineClick(polyline)
+                    zoomRoute(polyline.points)
+                }
+
+            }
         }
-
-        mMapView.onSaveInstanceState(mapViewBundle)
     }
 
-     override fun onResume() {
-        super.onResume()
-        mMapView.onResume()
-    }
+    private fun calculateDirections(marker:Marker) {
+        docRef.get().addOnSuccessListener {
 
-     override fun onStart() {
-        super.onStart()
-        mMapView.onStart()
-    }
+            val user: User? = it.toObject(User::class.java)
 
-     override fun onStop() {
-        super.onStop()
-         //markerMap.clear()
-        mMapView.onStop()
+            Log.d("DirectionsApi", "calculateDirections: calculating directions.")
+            val destination = com.google.maps.model.LatLng(
+                marker.position.latitude,
+                marker.position.longitude
+            )
+            val directions = DirectionsApiRequest(mGeoApiContext)
+            directions.alternatives(true)
+            directions.origin(
+                com.google.maps.model.LatLng(user!!.latitude,user.longitude)
+            )
+            Log.d("DirectionsApi", "calculateDirections: destination: " + destination.toString())
+            directions.destination(destination).setCallback(object : PendingResult.Callback<DirectionsResult> {
+                override fun onResult(result: DirectionsResult) {
+                    Log.d("DirectionsApi", "calculateDirections: routes: " + result.routes[0].toString())
+                    Log.d("DirectionsApi", "calculateDirections: duration: " + result.routes[0].legs[0].duration)
+                    Log.d("DirectionsApi", "calculateDirections: distance: " + result.routes[0].legs[0].distance)
+                    Log.d(
+                        "DirectionsApi",
+                        "calculateDirections: geocodedWayPoints: " + result.geocodedWaypoints[0].toString()
+                    )
+
+                    addPolylinesToMap(result)
+
+
+                }
+
+                override fun onFailure(e: Throwable) {
+                    Log.e("DirectionsApi", "calculateDirections: Failed to get directions: " + e.message)
+                }
+            })
+        }
     }
 
     override fun onMapReady(map: GoogleMap) {
 
-
-
+        googleMap = map
         map.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, com.modern.btourist.R.raw.mapstyle_night))
+        map.setOnInfoWindowClickListener(this)
+        map.setOnPolylineClickListener(this)
 
         attractionColRef.addSnapshotListener(activity as Activity) { querySnapshot, firebaseFirestoreException ->
 
@@ -160,6 +236,26 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
 
         docRef.get().addOnSuccessListener(activity as Activity) {
+            try {
+                var bundle = MapFragmentArgs.fromBundle(arguments!!)
+                if(arguments!=null){
+                    var attrDoc = attractionColRef.whereEqualTo("name",bundle.name)
+                    attrDoc.get().addOnSuccessListener {snapshot: QuerySnapshot ->
+                        var attr = snapshot.toObjects(Attraction::class.java)
+                        var attraction = attr.get(0)
+                        var loc: LatLng = LatLng(attraction.latitude,attraction.longitude)
+
+                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(loc,17F))
+
+                    }
+
+                }else{
+
+                }
+            }catch (e: Exception){
+                e.printStackTrace()
+            }
+
             val user: User? = it.toObject(User::class.java)
             var latLan: LatLng = LatLng(user!!.latitude, user.longitude)
 
@@ -258,15 +354,28 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                         }
                         }
 
+
                     map.setInfoWindowAdapter(object: GoogleMap.InfoWindowAdapter {
+
                         override fun getInfoWindow(marker: Marker): View? {
+
                             return null
                         }
 
                         override fun getInfoContents(marker: Marker): View {
-                            if (markerPlaces.contains(marker.id)) {
+
+                            if(markerEndLocation.contains(marker.id)){
                                 val view = (context as Activity).layoutInflater
-                                    .inflate(R.layout.custom_info_window_attraction, null)
+                                    .inflate(R.layout.custom_end_location_info_window, null)
+
+                                val titleText = view.findViewById<TextView>(R.id.titleText)
+                                val snippetText = view.findViewById<TextView>(R.id.snippetText)
+
+                                titleText.text = marker.title
+                                snippetText.text = marker.snippet
+
+                                return view
+                            }else if (markerPlaces.contains(marker.id)) {
 
                                 fun getImage(imageName: String): Int {
 
@@ -276,6 +385,10 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
                                     return drawableResourceId
                                 }
+
+
+                                val view = (context as Activity).layoutInflater
+                                    .inflate(R.layout.custom_info_window_attraction, null)
 
                                 val nameText = view.findViewById<TextView>(R.id.attractionNameText)
                                 val categoryText = view.findViewById<TextView>(R.id.attractionCategoryText)
@@ -289,9 +402,8 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
                                 var resource = getImage(attraction.image)
                                 nameText.text = attraction.name
-                                categoryText.text = attraction.category
+                                categoryText.text = attraction.category+"\n"+"\n"+"Touch to Navigate to Location"
                                 var description = attraction.description
-                                description.replace("\\n", "\n")
                                 descriptorText.text = description
                                 phoneText.text ="Phone: "+ attraction.phone.toString()
                                 websiteText.text = "Website: "+ attraction.website
@@ -299,7 +411,7 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                                 attrImage.setImageResource(resource)
 
                                 return view
-                            }
+                            }else {
                                 val view = (context as Activity).layoutInflater
                                     .inflate(R.layout.custom_info_window, null)
 
@@ -334,6 +446,7 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
                                 return view
                             }
+                            }
 
                     })
 
@@ -343,28 +456,87 @@ class MapFragment : Fragment(),OnMapReadyCallback {
 
 
         }
+        val button = binding.endTripButton
+        button.setOnClickListener {
+            for(data in polylines){
+                data.polyline.remove()
+            }
+            polylines.clear()
+            polylines = ArrayList()
 
+            for( m in attractionTripMarkerList){
+                m.remove()
+            }
+            button.visibility = View.GONE
+        }
     }
 
-
-     override fun onPause() {
-        mMapView.onPause()
-        super.onPause()
-         //markerMap.clear()
+    fun zoomRoute(lstLatLngRoute:List<LatLng>) {
+        if (googleMap ==
+            null || lstLatLngRoute == null || lstLatLngRoute.isEmpty()) return
+        val boundsBuilder = LatLngBounds.Builder()
+        for (latLngPoint in lstLatLngRoute)
+            boundsBuilder.include(latLngPoint)
+        val routePadding = 120
+        val latLngBounds = boundsBuilder.build()
+        googleMap!!.animateCamera(
+            CameraUpdateFactory.newLatLngBounds(latLngBounds, routePadding),
+            600, null
+        )
     }
 
-     override fun onDestroy() {
-        mMapView.onDestroy()
-         registration.remove()
-         markerMap.clear()
-        super.onDestroy()
-
+    override fun onInfoWindowClick(p0: Marker?) {
+        Log.d("InfoClick", "Infow window clicked")
+        if (markerPlaces.contains(p0!!.id)) {
+            var builder: AlertDialog.Builder = AlertDialog.Builder(context)
+            builder.setMessage("Set route to Attraction?")
+                .setCancelable(true)
+                .setPositiveButton("Yes"){dialog, which ->
+                    calculateDirections(p0!!)
+                    Snackbar.make(view!!,"Select Preferred Route by clicking on it", Snackbar.LENGTH_LONG).show()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("No"){dialog, which ->
+                    dialog.cancel()
+                }
+            var alert: AlertDialog = builder.create()
+            alert.show()
+        }
     }
 
-    override fun onLowMemory() {
-        super.onLowMemory()
+    override fun onPolylineClick(polyline: Polyline?) {
+        var index = 0
+        for (polylineData in polylines)
+        {
+            index++
+            Log.d("PolylineClick", "onPolylineClick: toString: " + polylineData.toString())
+            if (polyline!!.id == polylineData.polyline.id)
+            {
+                polylineData.polyline.color = ContextCompat.getColor(activity as Activity, R.color.light_blue)
+                polylineData.polyline.zIndex = 1F
+                val endLocation = LatLng(
+                    polylineData.leg.endLocation.lat,
+                    polylineData.leg.endLocation.lng
+                )
 
-        mMapView.onLowMemory()
+                val marker: Marker = googleMap!!.addMarker(MarkerOptions()
+                    .position(endLocation)
+                    .title("Trip: NR"+index)
+                    .snippet("Duration: "+polylineData.leg.duration)
+                )
+                markerEndLocation.add(marker.id)
+                attractionTripMarkerList.add(marker)
+                marker.showInfoWindow()
+                binding.endTripButton.visibility = View.VISIBLE
+
+            }
+            else
+            {
+                polylineData.polyline.color = ContextCompat.getColor(activity as Activity, R.color.lightGreyAccent)
+                polylineData.polyline.zIndex = 0F
+            }
+        }
+
     }
 
     fun getRoundedBitmap(srcBitmap: Bitmap, cornerRadius: Float): Bitmap {
@@ -400,7 +572,7 @@ class MapFragment : Fragment(),OnMapReadyCallback {
         srcBitmap.recycle()
 
         // Return the circular bitmap
-        return dstBitmap;
+        return dstBitmap
     }
 
    fun addBorderToRoundedBitmap(srcBitmap: Bitmap, cornerRadius: Float,borderWidth: Float,borderColor: Int) : Bitmap{
@@ -430,7 +602,7 @@ class MapFragment : Fragment(),OnMapReadyCallback {
                 borderWidth.toInt()/2,
                 dstBitmap.getWidth() - borderWidth.toInt()/2,
                 dstBitmap.getHeight() - borderWidth.toInt()/2
-        );
+        )
 
         // Initialize a new instance of RectF
         var rectF = RectF(rect)
@@ -446,23 +618,54 @@ class MapFragment : Fragment(),OnMapReadyCallback {
         // Return the bordered circular bitmap
         return dstBitmap
     }
-    class MarkerCallback : Callback{
 
-        var marker: Marker? = null
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
 
-         constructor(marker: Marker){
-             this.marker = marker
-         }
-
-        override fun onSuccess() {
-            if (marker != null && marker!!.isInfoWindowShown) {
-                marker!!.showInfoWindow()
-            }
+        var mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY)
+        if (mapViewBundle == null) {
+            mapViewBundle = Bundle()
+            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle)
         }
 
-        override fun onError(e: Exception?) {
-            Log.e("MarkerCallback", "Error loading thumbnail!")
-        }
+        mMapView.onSaveInstanceState(mapViewBundle)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mMapView.onResume()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        mMapView.onStart()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        //markerMap.clear()
+        mMapView.onStop()
+    }
+
+
+    override fun onPause() {
+        mMapView.onPause()
+        super.onPause()
+        //markerMap.clear()
+    }
+
+    override fun onDestroy() {
+        mMapView.onDestroy()
+        registration.remove()
+        markerMap.clear()
+        super.onDestroy()
+
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+
+        mMapView.onLowMemory()
     }
 
 }

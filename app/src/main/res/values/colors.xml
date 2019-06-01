@@ -10,4 +10,5 @@
     <color name="bejAccent">#E9D383</color>
     <color name="greyAccent">#FF424242</color>#bbbec1
     <color name="lightGreyAccent">#bbbec1</color>
+    <color name="light_blue">#1ac3f4</color>
 </resources>
