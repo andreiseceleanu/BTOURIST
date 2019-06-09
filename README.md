@@ -1,5 +1,5 @@
 # BTOURIST
-Bucharest Tourist App - Bachelor
+Bucharest Tourist App 
 
 Modern aplication using Android Jetpack, Firebase, Google Maps API and Kotlin
 
