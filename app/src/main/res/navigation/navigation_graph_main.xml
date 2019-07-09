@@ -106,7 +106,28 @@
         tools:layout="@layout/fragment_info" />
     <fragment
         android:id="@+id/guide"
-        android:name="com.modern.btourist.Guides.Guide"
+        android:name="com.modern.btourist.Guides.GuideInfo"
         android:label="fragment_guide"
-        tools:layout="@layout/fragment_guide" />
+        tools:layout="@layout/fragment_guide" >
+        <argument
+            android:name="userList"
+            app:argType="string[]"
+            app:nullable="true" />
+        <argument
+            android:name="attractionArray"
+            app:argType="string[]"
+            app:nullable="true" />
+        <argument
+            android:name="name"
+            app:argType="string" />
+        <argument
+            android:name="description"
+            app:argType="string" />
+        <argument
+            android:name="owner"
+            app:argType="string" />
+        <argument
+            android:name="time"
+            app:argType="string" />
+    </fragment>
 </navigation>

@@ -34,7 +34,8 @@ object FirestoreUtil {
                           language2: String ="",
                           profilePicturePath: String? = null,
                           latitude: Double =0.0,
-                          longitude: Double =0.0){
+                          longitude: Double =0.0,
+                          fullName: String=""){
 
         val userFieldMap = mutableMapOf<String,Any>()
         if(firstName.isNotBlank()) userFieldMap["firstName"]=firstName
@@ -51,6 +52,7 @@ object FirestoreUtil {
         if(profilePicturePath!=null) userFieldMap["profilePicturePath"]=profilePicturePath
         if(latitude!=0.0) userFieldMap["latitude"]=latitude
         if(longitude!=0.0) userFieldMap["longitude"]=longitude
+        if(fullName!="") userFieldMap["fullName"]=fullName
 
         currentUserDocRef.update(userFieldMap)
     }

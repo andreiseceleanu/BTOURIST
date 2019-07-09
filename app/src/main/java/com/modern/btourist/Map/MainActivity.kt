@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
         var bottomNav: BottomNavigationView = findViewById(R.id.bottomNav)
         var host: NavHostFragment? = supportFragmentManager.findFragmentById(R.id.navHostMain) as NavHostFragment?
-        var navController: NavController = host!!.getNavController()
+        var navController: NavController = host!!.navController
 
         bottomNav.setOnNavigationItemSelectedListener(
             BottomNavigationView.OnNavigationItemSelectedListener { item ->
@@ -91,20 +91,7 @@ class MainActivity : AppCompatActivity() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
             return
         }
-         mFusedLocationClient.lastLocation.addOnCompleteListener{
-             if(it.isSuccessful) {
-                 var location: Location? = it.result as Location?
-                 if(location!=null){
-                 var latLng: LatLng = LatLng(location!!.latitude, location!!.longitude)
-                 Log.d("LOCATION", "getLastKnownLocation: latitude " + latLng.latitude)
-                 Log.d("LOCATION", "getLastKnownLocation: longitude " + latLng.longitude)
 
-
-                 }
-             }
-
-
-         }
         startLocationService()
     }
 
@@ -121,10 +108,10 @@ class MainActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setMessage("This application requires GPS to work properly, do you want to enable it?")
             .setCancelable(false)
-            .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, id ->
+            .setPositiveButton("Yes") { dialog, id ->
                 val enableGpsIntent = Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                 startActivityForResult(enableGpsIntent, PERMISSIONS_REQUEST_ENABLE_GPS)
-            })
+            }
         val alert = builder.create()
         alert.show()
     }
@@ -140,24 +127,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getLocationPermission() {
-        /*
-         * Request location permission, so that we can get the location of the
-         * device. The result of the permission request is handled by a callback,
-         * onRequestPermissionsResult.
-         */
+
         if (ContextCompat.checkSelfPermission(
                 this.applicationContext,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
+                Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             mLocationPermissionGranted = true
             getLastKnownLocation()
 
-
         } else {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION
             )
 
@@ -171,7 +153,7 @@ class MainActivity : AppCompatActivity() {
 
         if (available == ConnectionResult.SUCCESS) {
             //everything is fine and the user can make map requests
-            d("MainActivity", "isServicesOK: Google Play Services is working")
+            d("MainActivity", "isServicesOK: Google Services is working")
             return true
         } else if (GoogleApiAvailability.getInstance().isUserResolvableError(available)) {
             //an error occured but we can resolve it
@@ -208,7 +190,7 @@ class MainActivity : AppCompatActivity() {
                 getLastKnownLocation()
 
             else {getLocationPermission()
-                //Snackbar.make( getWindow().getDecorView().getRootView() , "Location Permission Denied: App Malfunction",Snackbar.LENGTH_LONG).show()
+
             }
         }
     }
@@ -224,7 +206,7 @@ class MainActivity : AppCompatActivity() {
 
                 } else {
                     getLocationPermission()
-                    //Snackbar.make( getWindow().getDecorView().getRootView() , "Location Permission Denied: App Malfunction",Snackbar.LENGTH_LONG).show()
+
                 }
             }
         }
@@ -233,13 +215,13 @@ class MainActivity : AppCompatActivity() {
 
     //Create overflow menu
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        getMenuInflater().inflate(com.modern.btourist.R.menu.menu, menu);
-        return true;
+        menuInflater.inflate(R.menu.menu, menu)
+        return true
     }
 
     //Log out selected -> Set AUTHENTIFICATED=false in Shared Preferences
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if(item!!.itemId== com.modern.btourist.R.id.logOutItem){
+        if(item!!.itemId== R.id.logOutItem){
             val PREFS_FILENAME = "com.modern.btourist.prefs"
             val prefs = this.getSharedPreferences(PREFS_FILENAME, 0)
             val editor = prefs.edit()
@@ -258,12 +240,10 @@ class MainActivity : AppCompatActivity() {
     private fun startLocationService(){
         if(!isLocationServiceRunning()){
             var serviceIntent = Intent(this,LocationService::class.java)
-//        this.startService(serviceIntent)
-
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O){
                 this.startForegroundService(serviceIntent)
             }else{
-                startService(serviceIntent);
+                startService(serviceIntent)
             }
         }
     }

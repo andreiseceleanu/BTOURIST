@@ -76,7 +76,7 @@ class ProfilePictureFragment : Fragment() {
             val permission = ContextCompat.checkSelfPermission(activity as Context,
                 Manifest.permission.READ_EXTERNAL_STORAGE)
             fun makeRequest() {
-                ActivityCompat.requestPermissions(activity as Activity,
+                requestPermissions(activity as Activity,
                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
                     RECORD_REQUEST_CODE)
             }
@@ -90,9 +90,7 @@ class ProfilePictureFragment : Fragment() {
                             .setTitle("Permission required")
 
                                 builder.setPositiveButton("OK"
-                                ) { dialog, id ->
-
-                            makeRequest()
+                                ) { _, _ -> makeRequest()
                         }
 
                         val dialog = builder.create()
@@ -100,11 +98,9 @@ class ProfilePictureFragment : Fragment() {
                 } else {
                     makeRequest()
                 }
-
                 Snackbar.make( view!! , "Read External Storage Permission Denied: Please turn it on for Custom Avatar",Snackbar.LENGTH_LONG).show()
                 Log.i("ProfilePictureFragment", "Permission to record denied")
             }else {
-
                 val intent = Intent().apply {
                     type = "image/*"
                     action = Intent.ACTION_GET_CONTENT
@@ -156,7 +152,10 @@ class ProfilePictureFragment : Fragment() {
                                         sex,
                                         args.language1,
                                         args.language2,
-                                        imagePath
+                                        imagePath,
+                                        0.0,
+                                        0.0,
+                                        args.firstName+" "+args.lastName
                                     )
                                 }
                             else {
@@ -182,7 +181,10 @@ class ProfilePictureFragment : Fragment() {
                                         sex,
                                         args.language1,
                                         args.language2,
-                                        imagePath
+                                        imagePath,
+                                        0.0,
+                                        0.0,
+                                        args.firstName+" "+args.lastName
                                     )
                                 }
                             }
@@ -233,7 +235,7 @@ class ProfilePictureFragment : Fragment() {
     }
 
 
-    fun modifyOrientation(bitmap: Bitmap, image_absolute_path: InputStream): Bitmap {
+    private fun modifyOrientation(bitmap: Bitmap, image_absolute_path: InputStream): Bitmap {
         val ei = ExifInterface(image_absolute_path)
         val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
         return when (orientation) {

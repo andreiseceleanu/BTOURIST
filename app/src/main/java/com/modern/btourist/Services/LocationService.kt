@@ -11,10 +11,12 @@ import android.os.Build
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.Nullable
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.*
+import com.modern.btourist.Database.Btourist
 import com.modern.btourist.Database.FirestoreUtil
 
 
@@ -55,7 +57,7 @@ class LocationService : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand: called.")
         getLocation()
-        return Service.START_NOT_STICKY
+        return START_NOT_STICKY
     }
 
     private fun getLocation() {
@@ -83,20 +85,20 @@ class LocationService : Service() {
         mFusedLocationClient!!.requestLocationUpdates(
             mLocationRequestHighAccuracy, object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult?) {
-
                     Log.d(TAG, "onLocationResult: got location result.")
-
                     val location = locationResult!!.lastLocation
-
                     if (location != null) {
 
                         val latitude = location.latitude
                         val longitude = location.longitude
                         try{
-                        FirestoreUtil.updateCurrentUser("","","",0L,"","","",0,"","","",null,latitude,longitude)
+                        FirestoreUtil.updateCurrentUser("","","",0L,
+                            "","","",0,"","","",null,
+                            latitude,longitude)
                         }catch (e: NullPointerException) {
                             Log.e(TAG, "saveUserLocation: User instance is null, stopping location service.")
                             Log.e(TAG, "saveUserLocation: NullPointerException: " + e.message)
+                            Toast.makeText(Btourist.instance.applicationContext,"Something went wrong.Shutting service down",Toast.LENGTH_LONG).show()
                             stopForeground(true)
                             stopSelf()
                         }
@@ -112,8 +114,8 @@ class LocationService : Service() {
     companion object {
 
         private val TAG = "LocationService"
-        private val UPDATE_INTERVAL = (8 * 1000).toLong()  /* 12 secs */
-        private val FASTEST_INTERVAL: Long = 5000 /* 10 sec */
+        private val UPDATE_INTERVAL = (8 * 1000).toLong()  /* 8 secs */
+        private val FASTEST_INTERVAL: Long = 5000 /* 5 sec */
     }
 
 

@@ -137,8 +137,7 @@ class RegisterFragment : Fragment() {
             var phoneInt: Long = phone.toLong()
 
 
-            view!!.findNavController()
-                .navigate(RegisterFragmentDirections.actionRegisterFragmentToInterestsFragment(firstName,lastName,email,phoneInt,password))
+            view!!.findNavController().navigate(RegisterFragmentDirections.actionRegisterFragmentToInterestsFragment(firstName,lastName,email,phoneInt,password))
 
         }
 

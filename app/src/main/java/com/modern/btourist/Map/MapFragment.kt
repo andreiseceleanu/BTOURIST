@@ -122,6 +122,10 @@ class MapFragment : Fragment(),OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
                 }
                 polylines.clear()
                 polylines = ArrayList()
+
+                for( m in attractionTripMarkerList){
+                    m.remove()
+                }
             }
             for (route in result.routes) {
                 Log.d("Polylines", "run: leg: " + route.legs[0].toString())
@@ -170,17 +174,7 @@ class MapFragment : Fragment(),OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
             Log.d("DirectionsApi", "calculateDirections: destination: " + destination.toString())
             directions.destination(destination).setCallback(object : PendingResult.Callback<DirectionsResult> {
                 override fun onResult(result: DirectionsResult) {
-                    Log.d("DirectionsApi", "calculateDirections: routes: " + result.routes[0].toString())
-                    Log.d("DirectionsApi", "calculateDirections: duration: " + result.routes[0].legs[0].duration)
-                    Log.d("DirectionsApi", "calculateDirections: distance: " + result.routes[0].legs[0].distance)
-                    Log.d(
-                        "DirectionsApi",
-                        "calculateDirections: geocodedWayPoints: " + result.geocodedWaypoints[0].toString()
-                    )
-
                     addPolylinesToMap(result)
-
-
                 }
 
                 override fun onFailure(e: Throwable) {
@@ -430,8 +424,6 @@ class MapFragment : Fragment(),OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 
                                 var gson: Gson = Gson()
                                 var user: User = gson.fromJson(marker.snippet, User::class.java)
-
-
                                 var fullName: String = user.firstName + " " + user.lastName
                                 userText.text = fullName
                                 name_tv.text = user.sex
@@ -507,12 +499,9 @@ class MapFragment : Fragment(),OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
     override fun onPolylineClick(polyline: Polyline?) {
         var index = 0
         for (polylineData in polylines)
-        {
-            index++
-            Log.d("PolylineClick", "onPolylineClick: toString: " + polylineData.toString())
+        { index++
             if (polyline!!.id == polylineData.polyline.id)
-            {
-                polylineData.polyline.color = ContextCompat.getColor(activity as Activity, R.color.light_blue)
+            { polylineData.polyline.color = ContextCompat.getColor(activity as Activity, R.color.light_blue)
                 polylineData.polyline.zIndex = 1F
                 val endLocation = LatLng(
                     polylineData.leg.endLocation.lat,
@@ -531,8 +520,7 @@ class MapFragment : Fragment(),OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
 
             }
             else
-            {
-                polylineData.polyline.color = ContextCompat.getColor(activity as Activity, R.color.lightGreyAccent)
+            { polylineData.polyline.color = ContextCompat.getColor(activity as Activity, R.color.lightGreyAccent)
                 polylineData.polyline.zIndex = 0F
             }
         }
