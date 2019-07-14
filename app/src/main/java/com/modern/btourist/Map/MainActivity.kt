@@ -4,6 +4,7 @@ package com.modern.btourist.Map
 
 import android.Manifest
 import android.app.ActivityManager
+import android.app.DatePickerDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -15,6 +16,8 @@ import android.util.Log
 import android.util.Log.d
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.DatePicker
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -34,6 +37,8 @@ import com.modern.btourist.LoginRegister.LoginActivity
 import com.modern.btourist.R
 import com.modern.btourist.Services.LocationService
 import com.modern.btourist.databinding.ActivityMainBinding
+import java.text.DateFormat
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {

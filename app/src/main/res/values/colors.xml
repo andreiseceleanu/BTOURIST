@@ -11,4 +11,5 @@
     <color name="greyAccent">#FF424242</color>#bbbec1
     <color name="lightGreyAccent">#bbbec1</color>
     <color name="light_blue">#1ac3f4</color>
+    <color name="darkerGray">#282828</color>
 </resources>

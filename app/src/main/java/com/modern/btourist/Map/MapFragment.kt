@@ -233,14 +233,15 @@ class MapFragment : Fragment(),OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
             try {
                 var bundle = MapFragmentArgs.fromBundle(arguments!!)
                 if(arguments!=null){
+                    if(bundle.name!=""){
                     var attrDoc = attractionColRef.whereEqualTo("name",bundle.name)
-                    attrDoc.get().addOnSuccessListener {snapshot: QuerySnapshot ->
+                    attrDoc.get().addOnSuccessListener { snapshot: QuerySnapshot ->
                         var attr = snapshot.toObjects(Attraction::class.java)
                         var attraction = attr.get(0)
-                        var loc: LatLng = LatLng(attraction.latitude,attraction.longitude)
+                        var loc: LatLng = LatLng(attraction.latitude, attraction.longitude)
 
-                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(loc,17F))
-
+                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 17F))
+                    }
                     }
 
                 }else{

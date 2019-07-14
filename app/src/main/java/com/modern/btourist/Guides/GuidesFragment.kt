@@ -33,8 +33,9 @@ class GuidesFragment : Fragment() {
         // Inflate the layout for this fragment
         val inflate = inflater.inflate(R.layout.fragment_list, container, false)
         val button: FloatingActionButton = inflate.findViewById(R.id.addGuideFloatingButton)
+
         button.setOnClickListener{
-            it.findNavController().navigate(GuidesFragmentDirections.actionGuidesFragmentToCreateGuideFragment())
+            it.findNavController().navigate(GuidesFragmentDirections.actionGuidesFragmentToCreateGuideFragment(""))
         }
 
         var query: Query = col.orderBy("owner",Query.Direction.DESCENDING)

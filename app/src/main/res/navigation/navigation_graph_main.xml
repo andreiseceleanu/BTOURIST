@@ -89,7 +89,17 @@
         android:id="@+id/createGuideFragment"
         android:name="com.modern.btourist.Guides.CreateGuideFragment"
         android:label="fragment_create_guide"
-        tools:layout="@layout/fragment_create_guide" />
+        tools:layout="@layout/fragment_create_guide" >
+        <action
+            android:id="@+id/action_createGuideFragment_to_createGuideAttractions"
+            app:destination="@id/createGuideAttractions" />
+        <argument
+            android:name="selected"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_createGuideFragment_to_createGuide2Fragment"
+            app:destination="@id/createGuide2Fragment" />
+    </fragment>
     <fragment
         android:id="@+id/infoListFragment"
         android:name="com.modern.btourist.Info.InfoListFragment"
@@ -129,5 +139,29 @@
         <argument
             android:name="time"
             app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/createGuideAttractions"
+        android:name="com.modern.btourist.Guides.CreateGuideAttractions"
+        android:label="fragment_create_guide_attractions"
+        tools:layout="@layout/fragment_create_guide_attractions" >
+        <action
+            android:id="@+id/action_createGuideAttractions_to_createGuideFragment"
+            app:destination="@id/createGuideFragment" />
+        <argument
+            android:name="category"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/createGuide2Fragment"
+        android:name="com.modern.btourist.Guides.CreateGuide2Fragment"
+        android:label="fragment_create_guide2"
+        tools:layout="@layout/fragment_create_guide2" >
+        <action
+            android:id="@+id/action_createGuide2Fragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
+        <argument
+            android:name="attractionList"
+            app:argType="com.modern.btourist.Database.Attraction[]" />
     </fragment>
 </navigation>

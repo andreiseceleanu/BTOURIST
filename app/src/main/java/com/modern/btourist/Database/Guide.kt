@@ -1,13 +1,12 @@
 package com.modern.btourist.Database
 
 import android.os.Parcelable
-import com.google.firebase.Timestamp
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class Guide(var attractionsArray: ArrayList<String>?,var owner: String, var usersArray: ArrayList<String>?,var time: Timestamp?, var name:String, var description: String) :
+data class Guide(var attractionsArray: ArrayList<String>?,var owner: String, var usersArray: ArrayList<String>?,var time: String?, var name:String, var description: String) :
     Parcelable {
-    constructor() : this(null, "",null, null,"","")
+    constructor() : this(null, "",null, "","","")
 
 }
 
