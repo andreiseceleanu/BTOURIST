@@ -4,6 +4,7 @@ package com.modern.btourist.Guides
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -16,20 +17,25 @@ import androidx.navigation.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.gson.Gson
 import com.modern.btourist.Database.FirestoreUtil
 import com.modern.btourist.Database.Guide
 import com.modern.btourist.Database.User
 
-import com.modern.btourist.R
+
 import kotlinx.android.synthetic.main.fragment_create_guide2.*
 import java.text.DateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
+
+
+
 class CreateGuide2Fragment : Fragment(){
 
     private var db: FirebaseFirestore = FirebaseFirestore.getInstance()
     private var col: CollectionReference = db.collection("users")
+    private var guideCol: CollectionReference = db.collection("guides")
     lateinit var dataTimeText: TextView
     lateinit var nameEditText: EditText
     lateinit var descriptionEditText: EditText
@@ -39,10 +45,10 @@ class CreateGuide2Fragment : Fragment(){
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_create_guide2, container, false)
-        dataTimeText = view.findViewById(R.id.dateTimeText)
-        nameEditText = view.findViewById(R.id.nameEditText)
-        descriptionEditText = view.findViewById(R.id.descriptionEditText)
+        val view = inflater.inflate(com.modern.btourist.R.layout.fragment_create_guide2, container, false)
+        dataTimeText = view.findViewById(com.modern.btourist.R.id.dateTimeText)
+        nameEditText = view.findViewById(com.modern.btourist.R.id.nameEditText)
+        descriptionEditText = view.findViewById(com.modern.btourist.R.id.descriptionEditText)
 
         var bundle = CreateGuide2FragmentArgs.fromBundle(arguments!!)
         Log.d("AttractionListPassed",bundle.attractionList.toMutableList().toString())
@@ -51,10 +57,17 @@ class CreateGuide2Fragment : Fragment(){
         for(attraction in bundle.attractionList){
             attractionNamesList.add(attraction.name)
         }
+        var gson = Gson()
+        var prefs: SharedPreferences = activity!!.getSharedPreferences("com.modern.btourist.prefs",0)
+        var editor = prefs.edit()
+        editor.remove("attractionSet")
+        editor.putString("attractionSet",gson.toJson(attractionNamesList))
+        editor.apply()
 
-        val dateButton = view.findViewById<Button>(R.id.dateButton)
-        val timeButton = view.findViewById<Button>(R.id.timeButton)
-        val finishButton = view.findViewById<Button>(R.id.finishButton)
+
+        val dateButton = view.findViewById<Button>(com.modern.btourist.R.id.dateButton)
+        val timeButton = view.findViewById<Button>(com.modern.btourist.R.id.timeButton)
+        val finishButton = view.findViewById<Button>(com.modern.btourist.R.id.finishButton)
 
         dateButton.setOnClickListener {
             showDatePicker()
@@ -65,43 +78,70 @@ class CreateGuide2Fragment : Fragment(){
         }
 
         finishButton.setOnClickListener {
+            var prefs: SharedPreferences = activity!!.getSharedPreferences("com.modern.btourist.prefs",0)
+            var editor = prefs.edit()
+            editor.putBoolean("permited",true)
+
             if(validateFields()){
+
                 lateinit var userObject: User
-                col.addSnapshotListener(activity as Activity) { querySnapshot, firebaseFirestoreException ->
+                FirestoreUtil.getCurrentUser { user->
+                    userObject = user!!
 
-                    if( firebaseFirestoreException!=null){
-                        Log.e("MapFragment","Attraction snapshot listen failed",firebaseFirestoreException)
-                    }
-                    if(querySnapshot!=null) {
-                        for(user in querySnapshot){
-                            var userId = user.id
-                            userId = userId.replace("\\s".toRegex(), "")
-                            if(userId==FirebaseAuth.getInstance().currentUser!!.uid){
-                                userObject = user.toObject(User::class.java)
+                    var navController = activity!!.findNavController(com.modern.btourist.R.id.navHostMain)
 
-                                var navController = activity!!.findNavController(R.id.navHostMain)
+                    var owner = userObject.fullName
+                    var userList: ArrayList<String> = ArrayList()
+                    userList.add(owner)
+                    var dateTime = dataTimeText.text.toString()
+                    var name = nameEditText.text.toString()
+                    var description = descriptionEditText.text.toString()
 
-                                var owner = userObject.fullName
-                                var userList: ArrayList<String> = ArrayList()
-                                userList.add(owner)
-                                var dateTime = dataTimeText.text.toString()
-                                var name = nameEditText.text.toString()
-                                var description = descriptionEditText.text.toString()
+                    val guide = Guide(attractionNamesList, owner, userList, dateTime, name, description)
 
-                                val guide = Guide(attractionNamesList, owner, userList, dateTime, name, description)
-                                db.collection("guides").document(FirebaseAuth.getInstance().currentUser!!.uid).set(guide)
+                    var prefs: SharedPreferences = activity!!.getSharedPreferences("com.modern.btourist.prefs",0)
+                    var editor = prefs.edit()
 
-                                var current = navController.currentDestination?.id
+                    //if(prefs.getBoolean("permited",true)){
 
-                                if (navController.currentDestination?.id == R.id.createGuide2Fragment){
-                                     navController.navigate(CreateGuide2FragmentDirections.actionCreateGuide2FragmentToMapFragment(""))
-                                }
+                    db.collection("guides").document(FirebaseAuth.getInstance().currentUser!!.uid).set(guide)
+
+                    //}
+
+                    var current = navController.currentDestination?.id
+                    lateinit var guideId: String
+
+                    guideCol.whereEqualTo("owner",owner).addSnapshotListener {it,exception->
+                        if(exception!=null){
+                            Log.e("GuideSnapshot","Guide snapshot listen failed",exception)
+                        }else {
+                            if (navController.currentDestination?.id == com.modern.btourist.R.id.createGuide2Fragment) {
+
+                                editor.putBoolean("joined", true)
+                                editor.remove("AttractionList")
+                                editor.putString("owner", owner)
+                                Log.d("listanext",attractionNamesList.toString())
+                                editor.putBoolean("permited", false)
+                                var guide = it!!.first()
+                                guideId = guide.id
+                                editor.putString("ownerGuideId", guideId)
+                                editor.apply()
+                                navController.navigate(
+                                    CreateGuide2FragmentDirections.actionCreateGuide2FragmentToMapFragment(
+                                        ""
+                                    )
+                                )
+
                             }
                         }
+
                     }
                 }
+                }
 
-            }
+
+
+
         }
 
         return view
@@ -150,7 +190,8 @@ class CreateGuide2Fragment : Fragment(){
         override fun onDateSet(view:DatePicker, year:Int, monthOfYear:Int,
                                dayOfMonth:Int) {
             var c: Calendar = Calendar.getInstance()
-            var currentDateString: String = DateFormat.getDateInstance(DateFormat.FULL).format(c.time)
+            val date = GregorianCalendar(year, monthOfYear, dayOfMonth).time
+            var currentDateString: String = DateFormat.getDateInstance(DateFormat.FULL).format(date)
             dateTimeText.text = currentDateString
             Log.d("Date",currentDateString)
 

@@ -30,7 +30,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp"
-            android:backgroundTint="@color/orangeAccent"
+            android:backgroundTint="@color/lightGreyAccent"
             android:src="@drawable/ic_add_black_24dp" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

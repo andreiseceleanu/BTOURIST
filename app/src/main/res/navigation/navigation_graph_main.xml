@@ -14,7 +14,11 @@
             app:destination="@id/loginFragment2" />
         <action
             android:id="@+id/action_mapFragment_to_listFragment"
-            app:destination="@id/guidesFragment" />
+            app:destination="@id/guidesFragment" >
+            <argument
+                android:name="userFullName"
+                android:defaultValue='""' />
+        </action>
         <action
             android:id="@+id/action_mapFragment_to_categoriesFragment"
             app:destination="@id/categoriesFragment" />
@@ -39,6 +43,10 @@
         <action
             android:id="@+id/action_guidesFragment_to_guide"
             app:destination="@id/guide" />
+        <argument
+            android:name="userFullName"
+            app:argType="string"
+            android:defaultValue='""' />
     </fragment>
     <fragment
         android:id="@+id/categoriesFragment"
@@ -95,7 +103,8 @@
             app:destination="@id/createGuideAttractions" />
         <argument
             android:name="selected"
-            app:argType="string" />
+            app:argType="string"
+            app:nullable="true" />
         <action
             android:id="@+id/action_createGuideFragment_to_createGuide2Fragment"
             app:destination="@id/createGuide2Fragment" />
@@ -113,7 +122,15 @@
         android:id="@+id/infoFragment"
         android:name="com.modern.btourist.Info.InfoFragment"
         android:label="fragment_info"
-        tools:layout="@layout/fragment_info" />
+        tools:layout="@layout/fragment_info" >
+        <argument
+            android:name="infoList"
+            app:argType="string[]"
+            app:nullable="true" />
+        <argument
+            android:name="position"
+            app:argType="integer" />
+    </fragment>
     <fragment
         android:id="@+id/guide"
         android:name="com.modern.btourist.Guides.GuideInfo"
@@ -139,6 +156,15 @@
         <argument
             android:name="time"
             app:argType="string" />
+        <action
+            android:id="@+id/action_guide_to_groupUsersFragment"
+            app:destination="@id/groupUsersFragment" />
+        <action
+            android:id="@+id/action_guide_to_groupAttractionsFragment"
+            app:destination="@id/groupAttractionsFragment" />
+        <action
+            android:id="@+id/action_guide_to_mapFragment"
+            app:destination="@id/mapFragment" />
     </fragment>
     <fragment
         android:id="@+id/createGuideAttractions"
@@ -164,4 +190,29 @@
             android:name="attractionList"
             app:argType="com.modern.btourist.Database.Attraction[]" />
     </fragment>
+    <fragment
+        android:id="@+id/groupUsersFragment"
+        android:name="com.modern.btourist.Guides.GroupUsersFragment"
+        android:label="fragment_group_users"
+        tools:layout="@layout/fragment_group_users" >
+        <argument
+            android:name="userList"
+            app:argType="string[]"
+            app:nullable="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/groupAttractionsFragment"
+        android:name="com.modern.btourist.Guides.GroupAttractionsFragment"
+        android:label="fragment_group_attractions"
+        tools:layout="@layout/fragment_group_attractions" >
+        <argument
+            android:name="attractionList"
+            app:argType="string[]"
+            app:nullable="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/visitedFragment"
+        android:name="com.modern.btourist.Map.VisitedFragment"
+        android:label="fragment_visited"
+        tools:layout="@layout/fragment_visited" />
 </navigation>

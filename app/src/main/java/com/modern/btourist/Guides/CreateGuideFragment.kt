@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
 import androidx.navigation.findNavController
+import com.google.common.reflect.TypeToken
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
@@ -39,25 +40,56 @@ class CreateGuideFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_create_guide, container, false)
 
         if(savedInstanceState!=null){
-            selectedAttractionsList.addAll(savedInstanceState.getStringArrayList("list"))
+            //selectedAttractionsList.addAll(savedInstanceState.getStringArrayList("list"))
+            selectedAttractionsList = ArrayList()
         }else{
             selectedAttractionsList = ArrayList()
         }
 
+        selectedAttractionsList = ArrayList()
 
         var bundle = CreateGuideFragmentArgs.fromBundle(arguments!!)
-        var item = bundle.selected
-
         var sharedPrefs: SharedPreferences = activity!!.getSharedPreferences("com.modern.btourist.prefs",0)
         val editor = sharedPrefs.edit()
-        var storedList = sharedPrefs.getStringSet("AttractionList",null)
-        if(storedList!=null){
-            selectedAttractionsList.addAll(storedList.toTypedArray())
+
+        var item:String = bundle.selected!!
+        var gson = Gson()
+        var listType = object: TypeToken<List<String>>() {}.type
+        var storedList: List<String>? = null
+
+        if(item==""){
+            /*var storedString = sharedPrefs.getString("AttractionList",null)
+            storedList = gson.fromJson(storedString,listType)
+            if(storedList!=null){
+                selectedAttractionsList.add(item)
+                selectedAttractionsList.remove("")
+                editor.remove("AttractionList")
+                editor.apply()
+            }else{
+                selectedAttractionsList.add(item)
+                selectedAttractionsList.remove(item)
+                editor.remove("AttractionList")
+                editor.apply()
+            }*/
+        }else{
+            var storedString = sharedPrefs.getString("AttractionList",null)
+            storedList = gson.fromJson(storedString,listType)
+            if(storedList!=null){
+                selectedAttractionsList.addAll(storedList)
+                selectedAttractionsList.add(selectedAttractionsList.size,item)
+                editor.remove("AttractionList")
+                editor.putString("AttractionList",gson.toJson(selectedAttractionsList))
+                editor.apply()
+            }else{
+                selectedAttractionsList.add(item)
+                editor.remove("AttractionList")
+                editor.putString("AttractionList",gson.toJson(selectedAttractionsList))
+                editor.apply()
+            }
         }
-        selectedAttractionsList.add(item)
-        editor.remove("AttractionList")
-        editor.putStringSet("AttractionList",selectedAttractionsList.toSet())
-        editor.apply()
+
+
+
 
         lateinit var category: String
 
@@ -120,10 +152,12 @@ class CreateGuideFragment : Fragment() {
                     attractionList.clear()
                     adapter.notifyDataSetChanged()
                     editor.remove("AttractionList")
+                    editor.remove("list")
                     editor.apply()
                 }
 
                 nextButton.setOnClickListener {
+
                     view.findNavController().navigate(CreateGuideFragmentDirections.actionCreateGuideFragmentToCreateGuide2Fragment(attractionList.toTypedArray()))
                 }
 

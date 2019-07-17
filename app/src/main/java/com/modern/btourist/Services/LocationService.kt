@@ -98,7 +98,7 @@ class LocationService : Service() {
                         }catch (e: NullPointerException) {
                             Log.e(TAG, "saveUserLocation: User instance is null, stopping location service.")
                             Log.e(TAG, "saveUserLocation: NullPointerException: " + e.message)
-                            Toast.makeText(Btourist.instance.applicationContext,"Something went wrong.Shutting service down",Toast.LENGTH_LONG).show()
+                            //Toast.makeText(Btourist.instance.applicationContext,"Something went wrong.Shutting service down",Toast.LENGTH_LONG).show()
                             stopForeground(true)
                             stopSelf()
                         }

@@ -1,6 +1,7 @@
 package com.modern.btourist.Guides
 
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -34,11 +36,24 @@ class GuidesFragment : Fragment() {
         val inflate = inflater.inflate(R.layout.fragment_list, container, false)
         val button: FloatingActionButton = inflate.findViewById(R.id.addGuideFloatingButton)
 
+        var prefs: SharedPreferences = activity!!.getSharedPreferences("com.modern.btourist.prefs",0)
         button.setOnClickListener{
-            it.findNavController().navigate(GuidesFragmentDirections.actionGuidesFragmentToCreateGuideFragment(""))
+            if(prefs.getBoolean("joined",false)){
+                Snackbar.make(view!!,"You already joined a Group. Exit to join another",Snackbar.LENGTH_LONG).show()
+            }else{
+                it.findNavController().navigate(GuidesFragmentDirections.actionGuidesFragmentToCreateGuideFragment(""))
+                var editor = prefs.edit()
+                //editor.putBoolean("permited",true)
+                editor.apply()
+            }
         }
-
-        var query: Query = col.orderBy("owner",Query.Direction.DESCENDING)
+        var bundle = GuidesFragmentArgs.fromBundle(arguments!!)
+        lateinit var query: Query
+        if(bundle.userFullName==""){
+            query = col.orderBy("owner",Query.Direction.DESCENDING)
+        }else{
+            query = db.collection("guides").whereEqualTo("owner",bundle.userFullName).orderBy("owner",Query.Direction.DESCENDING)
+        }
 
         var options: FirestoreRecyclerOptions<Guide> = FirestoreRecyclerOptions.Builder<Guide>()
             .setQuery(query, Guide::class.java)

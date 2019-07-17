@@ -5,4 +5,7 @@
     <item
         android:id="@+id/logOutItem"
         android:title="Log Out" />
+    <item
+        android:id="@+id/historyItem"
+        android:title="Visited" />
 </menu>

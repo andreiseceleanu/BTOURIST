@@ -18,10 +18,12 @@ data class User(var firstName: String,
                 var profilePicturePath: String?,
                 var latitude: Double,
                 var longitude: Double,
-                var fullName: String) : Parcelable {
+                var fullName: String,
+                var visitedList: ArrayList<String>) : Parcelable {
 
     constructor():this("","","",0L,"","","",0,"","","",null,
-        0.0,0.0,"")
+        0.0,0.0,"",ArrayList())
+
 
 }
 

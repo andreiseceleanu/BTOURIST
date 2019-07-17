@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var mLocationPermissionGranted: Boolean = false
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
+    lateinit var navController: NavController
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,7 +63,7 @@ class MainActivity : AppCompatActivity() {
 
         var bottomNav: BottomNavigationView = findViewById(R.id.bottomNav)
         var host: NavHostFragment? = supportFragmentManager.findFragmentById(R.id.navHostMain) as NavHostFragment?
-        var navController: NavController = host!!.navController
+        navController = host!!.navController
 
         bottomNav.setOnNavigationItemSelectedListener(
             BottomNavigationView.OnNavigationItemSelectedListener { item ->
@@ -72,7 +73,9 @@ class MainActivity : AppCompatActivity() {
                         return@OnNavigationItemSelectedListener true
                     }
                     R.id.bottonGuidesButton -> {
-                        navController.navigate(R.id.guidesFragment, null)
+                        var bundle: Bundle = Bundle()
+                        bundle.putString("userFullName","")
+                        navController.navigate(R.id.guidesFragment,bundle)
                         return@OnNavigationItemSelectedListener true
                     }
                     R.id.bottomAttractionsButton -> {
@@ -231,6 +234,7 @@ class MainActivity : AppCompatActivity() {
             val prefs = this.getSharedPreferences(PREFS_FILENAME, 0)
             val editor = prefs.edit()
             editor.putBoolean("AUTHENTIFICATED",false)
+            editor.putBoolean("joined",false)
             editor.apply()
 
             //Start login activity, Close main activity
@@ -239,6 +243,9 @@ class MainActivity : AppCompatActivity() {
             this.finish()
             FirebaseAuth.getInstance().signOut()
 
+        }
+        if(item!!.itemId==R.id.historyItem){
+            navController.navigate(R.id.visitedFragment)
         }
         return super.onOptionsItemSelected(item)
     }

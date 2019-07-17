@@ -49,7 +49,9 @@ class GuideAdapter : FirestoreRecyclerAdapter<Guide, GuideAdapter.ViewHolder> {
                 var ref = StorageUtil.pathToReference(path!!)
                 var localFile: File = File.createTempFile("Images", "jpeg")
                 ref.getFile(localFile).addOnSuccessListener {
-                    var myImage = BitmapFactory.decodeFile(localFile.absolutePath)
+                    val options = BitmapFactory.Options()
+                    options.inSampleSize = 8
+                    var myImage = BitmapFactory.decodeFile(localFile.absolutePath,options)
                     GlideApp.with(Btourist.instance).load(myImage).placeholder(R.drawable.people).into(p0.imageView)
                 }
 
