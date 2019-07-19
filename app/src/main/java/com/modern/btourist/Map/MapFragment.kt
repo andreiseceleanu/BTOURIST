@@ -138,8 +138,7 @@ class MapFragment : Fragment(),OnMapReadyCallback, GoogleMap.OnInfoWindowClickLi
             editor.putBoolean("joined",false)
             editor.apply()
         }
-        editor.putBoolean("joined",false)
-        editor.apply()
+
             var exitGuideButton = binding.exitGuideButton
             var visitingText = binding.visitingTextView
             var nowText = binding.textView9
